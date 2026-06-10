@@ -6,12 +6,11 @@ from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
 from sven.tools.manpage import manpage
 from sven.tools.touch import touch
+from sven.tools.listfiles import listfiles
 from sven.tools.vim.read import read
 from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
 from sven.tools.vim.autoformat import autoformat
-
-
 
 available_functions = {
   'getdatetime': getdatetime,
@@ -20,7 +19,7 @@ available_functions = {
   'autoformat': autoformat,
   'read': read,
   'touch': touch,
-  'listfiles': replacefiles,
+  'listfiles': listfiles,
   'replacefile': replacefile,
   'replaceline': replaceline,
 }
