@@ -9,4 +9,5 @@ def listfiles() -> str:
         list of files in the current directory
     """
     result = subprocess.run([ "find", "." ], capture_output=True, text=True)
-    return
+    print(result.stdout)
+    return result.stdout
