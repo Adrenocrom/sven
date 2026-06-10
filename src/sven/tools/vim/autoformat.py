@@ -1,15 +1,15 @@
 import subprocess
 
-def autoformat(filename: str) -> None:
+def autoformat(filepath: str) -> None:
     """
     autoformat the given file
 
     Args:
-        filename (str): The name of the file to format.
+        filepath (str): The path of the file to format.
 
     Returns:
         None
     """
-    cmd = [ "vim", "-Es", "+normal! gg=G", "+x", filename ]
+    cmd = [ "vim", "-Es", "+normal! gg=G", "+x", filepath ]
     result = subprocess.run(cmd, capture_output=True, text=True)
     return

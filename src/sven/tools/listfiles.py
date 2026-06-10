@@ -1,8 +1,10 @@
 import subprocess
 
 def listfiles() -> str:
-    """list files in current directory"""
     """
+    List files in current directory
+    Args:
+        None
     Returns:
         list of files in the current directory
     """

@@ -1,5 +1,6 @@
 # src/mychat/chat.py
 import json
+import readline
 from ollama import chat, Options
 
 from sven.tools.getdatetime import getdatetime
@@ -8,6 +9,7 @@ from sven.tools.manpage import manpage
 from sven.tools.touch import touch
 from sven.tools.listfiles import listfiles
 from sven.tools.vim.read import read
+from sven.tools.vim.edit import searchandreplace
 from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
 from sven.tools.vim.autoformat import autoformat
@@ -20,15 +22,17 @@ available_functions = {
   'read': read,
   'touch': touch,
   'listfiles': listfiles,
+  'searchandreplace': searchandreplace,
   'replacefile': replacefile,
   'replaceline': replaceline,
 }
 tools = list(available_functions.values())
 
+# Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
 def interactive_chat(
     model: str,
     options: Options | None = None,
-    system_prompt: str = "You are a helpful assistant.",
+    system_prompt: str = "You are Sven, you search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
 ) -> None:
     """
     Run an interactive LLM conversation in the terminal.
@@ -81,3 +85,4 @@ def interactive_chat(
                 print(f"\x1b[31mSven\033[0m: {response.message.content}")
                 # end the loop when there are no more tool calls
                 break
+
