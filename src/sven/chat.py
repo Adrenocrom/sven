@@ -13,6 +13,7 @@ from sven.tools.vim.edit import searchandreplace
 from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
 from sven.tools.vim.autoformat import autoformat
+from sven.tools.python.compilefile import compilefile
 
 available_functions = {
   'getdatetime': getdatetime,
@@ -25,6 +26,7 @@ available_functions = {
   'searchandreplace': searchandreplace,
   'replacefile': replacefile,
   'replaceline': replaceline,
+  'compilefile': compilefile,
 }
 tools = list(available_functions.values())
 
@@ -62,7 +64,6 @@ def interactive_chat(
 
         if not user_text.strip():
             continue  # ignore empty lines
-        if true
 
         messages.append({"role": "user", "content": user_text})
 
@@ -79,7 +80,6 @@ def interactive_chat(
                     if tc.function.name in available_functions:
                         print(f"\x1b[33m\ttoolcall {tc.function.name} with arguments {tc.function.arguments}\x1b[0m")
                         result = available_functions[tc.function.name](**tc.function.arguments)
-                        # Result is a dict with 'success', 'message', 'data'
                         if result.get("success"):
                             content = result.get("data") if result.get("data") is not None else ""
                         else:
@@ -87,6 +87,5 @@ def interactive_chat(
                         messages.append({"role": "tool", "tool_name": tc.function.name, "content": str(content)})
             else:
                 print(f"\x1b[31mSven\033[0m: {response.message.content}")
-                # end the loop when there are no more tool calls
                 break
 

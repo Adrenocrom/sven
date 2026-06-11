@@ -36,7 +36,7 @@ def run_prompt_sequence(
     system_prompt: str = "You are Sven, you search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
 ) -> None:
     if options is None:
-        options = Options(temperature=0.3)
+        options = Options(temperature=0.0)
 
     messages = [{"role": "system", "content": system_prompt}]
     for prompt in prompts:
@@ -49,17 +49,17 @@ def run_prompt_sequence(
                 tools=tools
             )
             messages.append(response.message)
-            #print(f"Thinking: \x1b[30m{response.message.thinking}\x1b[0m")
             if response.message.tool_calls:
                 for tc in response.message.tool_calls:
                     if tc.function.name in available_functions:
                         print(f"\x1b[33m\ttoolcall {tc.function.name} with arguments {tc.function.arguments}\x1b[0m")
                         result = available_functions[tc.function.name](**tc.function.arguments)
-                        #print(f"Result: {result}")
-                        # add the tool result to the messages
-                        messages.append({'role': 'tool', 'tool_name': tc.function.name, 'content': str(result)})
+                        if result.get("success"):
+                            content = result.get("data") if result.get("data") is not None else ""
+                        else:
+                            content = f"Error: {result.get('message')}"
+                        messages.append({"role": "tool", "tool_name": tc.function.name, "content": str(content)})
             else:
                 print(f"\x1b[31mSven\033[0m: {response.message.content}")
-                # end the loop when there are no more tool calls
                 break
 
