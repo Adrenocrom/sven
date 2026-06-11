@@ -62,6 +62,7 @@ def interactive_chat(
 
         if not user_text.strip():
             continue  # ignore empty lines
+        if true
 
         messages.append({"role": "user", "content": user_text})
 
