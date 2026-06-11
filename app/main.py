@@ -7,7 +7,7 @@ if __name__ == "__main__":
     #interactive_chat(model="gemma4:12b")
     # Or you can use a prompt sequence to run multiple tasks in sequence
     commit("start the sprint")
-    for i in range(1, 10):
+    for i in range(1, 24):
         print(f"sprint {i}")
         run_prompt_sequence(prompts=[
             "`./todo.md` describes what you have to do next. implement the features. Rewrite the todo.md",
