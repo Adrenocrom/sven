@@ -1,3 +1,3 @@
 # improvements
 
-1. add a webfetch tool based on curl.
+1. add the existing webfetch tool to task.py and chat.py.
