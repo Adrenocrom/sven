@@ -10,7 +10,7 @@ def commit(message: str) -> dict:
         None
     """
     try:
-        print("commit")
+        print(f"Commiting: {message}")
         result = subprocess.run(["git", "commit", "-am", message], capture_output=True, text=True)
         return {"success": True, "message": "OK", "data": result.stdout}
     except Exception as e:
