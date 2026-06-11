@@ -6,6 +6,7 @@ from ollama import chat, Options
 
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
+from sven.tools.webfetch import webfetch
 from sven.tools.manpage import manpage
 from sven.tools.touch import touch
 from sven.tools.listfiles import listfiles
@@ -21,6 +22,7 @@ from sven.core_logic import process_tool_calls
 available_functions: Dict[str, Any] = {
   'getdatetime': getdatetime,
   'websearch': websearch,
+  'webfetch': webfetch,
   'manpage': manpage,
   'read': read,
   'touch': touch,
@@ -43,7 +45,10 @@ def run_prompt_sequence(
         options = Options(temperature=0.0)
 
     messages = [{"role": "system", "content": system_prompt}]
+    size = len(prompts)
+    count = 1
     for prompt in prompts:
+        print(f"Running {count} of up to {size} prompts...")
         messages.append({"role": "user", "content": prompt})
 
         while True:
@@ -56,6 +61,6 @@ def run_prompt_sequence(
             messages.extend(process_tool_calls(response.message, available_functions, messages))
 
             if not response.message.tool_calls:
-                print(f"\x1b[31mSven\033[0m: {response.message.content}")
+                print(f"{response.message.content}")
                 break
 

@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 
+wrinting_tools = [  'replacefile', 'replaceline', 'touch' ]
 def process_tool_calls(
     response_message, 
     available_functions: Dict[str, any], 
@@ -26,7 +27,10 @@ def process_tool_calls(
     for tc in response_message.tool_calls:
         func_name = tc.function.name
         if func_name in available_functions:
-            print(f"\x1b[33m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
+            if func_name in wrinting_tools:
+                print(f"\x1b[32m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
+            else:
+                print(f"\x1b[34m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
             result = available_functions[func_name](**tc.function.arguments)
             
             if result.get("success"):
