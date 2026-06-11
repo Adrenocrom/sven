@@ -7,7 +7,10 @@ def webfetch(url: str) -> dict:
     """
     try:
         result = subprocess.run(["curl", "-L", url], capture_output=True, text=True)
-        return {"success": True, "message": "OK", "data": result.stdout}
+        if result.returncode == 0:
+            return {"success": True, "message": "OK", "data": result.stdout}
+        else:
+            return {"success": False, "message": f"Curl failed with exit code {result.returncode}", "data": result.stderr}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
 
