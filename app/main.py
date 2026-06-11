@@ -10,15 +10,15 @@ if __name__ == "__main__":
     for i in range(1, 10):
         print(f"sprint {i}")
         run_prompt_sequence(prompts=[
-            "Read `improv.md` you task is to select one feature. Nothing more.",
-            "Try to describe the choosen feautre in `work.md`, do not implement anything."
+            "Read `./improv.md` you task is to select one feature. Nothing more.",
+            "Try to describe the choosen feautre in `./work.md`, do not implement anything."
             ],model="gemma4:12b")
         commit("bot - step created")
         run_prompt_sequence(prompts=[
-            "Open `work.md`, read it carefully, and carry out the tasks described inside.",
+            "Open `./work.md`, read it carefully, and carry out the tasks described inside.",
             ],model="gemma4:12b")
         commit("bot - improved")
         run_prompt_sequence(prompts=[
-            "review the code and described what can be improved, persist it in `improv.md`",
+            "review the code and described what can be improved, persist it in `./improv.md`",
             ],model="gemma4:12b")
         commit("bot - reviewed")
