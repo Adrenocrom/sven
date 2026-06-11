@@ -1,36 +1,27 @@
-# Suggested Improvements for Sven
+# Improvement Roadmap for Sven
 
-1. **Consistent Tool Interfaces**
-   - Currently tools return raw values (`str`, `dict`, etc.). Adopt a unified response schema (e.g., JSON with `success` flag, `message`, and optional `data`). This makes error handling easier.
+## Current Progress
+- [x] **Consistent Tool Interfaces**: All tools now share a unified response schema (`success`, `message`, `data`), enabling consistent interaction between the core logic and the LLM.
+- [x] **Basic Error Handling**: Individual tool implementations are wrapped in try/except blocks to ensure that system errors are caught and communicated back as "failures" rather than crashing the loop.
 
-2. **Error Handling & Logging**
-   - Wrap each tool call in try/except blocks to capture exceptions and return a user‑friendly message. Log errors to a file for debugging.
+## Upcoming Improvements
 
-3. **Enhanced Editing Tools**
-   - The current `searchandreplace`, `replacefile`, and `replaceline` functions assume the entire file fits into memory. For large files consider streaming or in‑place editing with temporary files.
-   - Add support for regex patterns and multi‑line replacements.
+### 1. Advanced Tool Validation
+- Implement more rigorous validation of `tool_call` arguments before execution (e.g., type casting for numbers, presence of required strings).
+- Provide specific feedback to the model when a call is malformed so it can self-correct.
 
-4. **Tool‑Call Validation**
-   - Validate that arguments match expected types before invoking a tool. If invalid, prompt the user to correct input instead of silently failing.
+### 2. Enhanced Editing Logic
+- **Large File Handling**: Move away from full-file replacement for very large files, implementing chunked reading/writing or targeted line editing.
+- **Escaping & Safety**: Implement better escaping of special characters in `newcontent` to ensure that multi-line inputs do not break Vim's command processing.
 
-5. **CLI Enhancements**
-   - Provide command line options for specifying model, temperature, and log level.
-   - Add a `--dry-run` flag to preview changes without applying them.
+### 3. Performance & Scalability
+- **Result Caching**: Cache results for repetitive operations (e.g., `websearch` or `getdatetime`) within the context of a single session.
+- **Asynchronous I/O**: Implement `asyncio` for non-blocking file system interactions and network requests.
 
-6. **Unit Tests for Tool Functions**
-   - Expand tests to cover edge cases (e.g., nonexistent files, permission errors, empty search patterns).
+### 4. User Experience & DX
+- **Progressive CLI Tools**: Add flags for `--model`, `--temperature`, and `--verbose`.
+- **Auto-Generated Documentation**: Generate a help menu or local "man" page that dynamically lists all available tools and their required parameters for the LLM to reference.
 
-7. **Documentation & Help Output**
-   - Generate a `--help` section listing available tools and their parameters.
-   - Include usage examples in README.
-
-8. **Performance Improvements**
-   - Cache results of expensive operations (e.g., websearch) when called repeatedly with the same query during a session.
-   - Use asynchronous I/O for file operations to avoid blocking the chat loop.
-
-9. **Internationalization / Encoding Support**
-   - Ensure that reading/writing files handles different encodings gracefully.
-
-10. **Better Integration with Code Editors**
-    - Consider implementing a Neovim/Lua plugin or VSCode extension that forwards editor commands to Sven instead of relying on the terminal UI.
+### 5. Integration
+- Provide hooks for deeper integration with IDEs (VSCode/Neovim) as backend drivers rather than just a standalone CLI shell.
 

@@ -2,12 +2,22 @@ import subprocess
 
 def autoformat(filepath: str) -> dict:
     """
-    Auto format file using vim's formatting.
+    Automatically format a file using vim's formatting tools.
+    
+    Args:
+        filepath (str): Path to the file to be formatted.
+        
+    Returns:
+        dict: Success status and message or data.
     """
     try:
-        cmd = ["vim", "-Es", "+normal! gqG", "+x", filepath]
+        # Using -es (silent, script) for clean execution in non-interactive mode
+        cmd = ["vim", "-Es", f"+%s", "+x", filepath]
         result = subprocess.run(cmd, capture_output=True, text=True)
-        return {"success": True, "message": "OK", "data": None}
+        if result.returncode == 0:
+            return {"success": True, "message": "OK", "data": None}
+        else:
+            return {"success": False, "message": f"Autoformat failed with code {result.returncode}", "data": result.stderr}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
 

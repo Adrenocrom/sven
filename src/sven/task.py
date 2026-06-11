@@ -1,6 +1,7 @@
-# src/mychat/chat.py
+# src/sven/task.py
 import json
 import readline
+from typing import List, Dict, Any
 from ollama import chat, Options
 
 from sven.tools.getdatetime import getdatetime
@@ -15,7 +16,10 @@ from sven.tools.vim.edit import replaceline
 from sven.tools.vim.autoformat import autoformat
 from sven.tools.python.compilefile import compilefile
 
-available_functions = {
+# Importing the shared logic to reduce redundancy
+from sven.core_logic import process_tool_calls
+
+available_functions: Dict[str, Any] = {
   'getdatetime': getdatetime,
   'websearch': websearch,
   'manpage': manpage,
@@ -45,23 +49,15 @@ def run_prompt_sequence(
         messages.append({"role": "user", "content": prompt})
 
         while True:
-            response: ChatResponse = chat(
+            response = chat(
                 model=model,
                 messages=messages,
                 tools=tools
             )
-            messages.append(response.message)
-            if response.message.tool_calls:
-                for tc in response.message.tool_calls:
-                    if tc.function.name in available_functions:
-                        print(f"\x1b[33m\ttoolcall {tc.function.name} with arguments {tc.function.arguments}\x1b[0m")
-                        result = available_functions[tc.function.name](**tc.function.arguments)
-                        if result.get("success"):
-                            content = result.get("data") if result.get("data") is not None else ""
-                        else:
-                            content = f"Error: {result.get('message')}"
-                        messages.append({"role": "tool", "tool_name": tc.function.name, "content": str(content)})
-            else:
+            # The response message and any subsequent tool calls are handled by the core logic module
+            messages.extend(process_tool_calls(response.message, available_functions, messages))
+
+            if not response.message.tool_calls:
                 print(f"\x1b[31mSven\033[0m: {response.message.content}")
                 break
 
