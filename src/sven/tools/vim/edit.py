@@ -1,11 +1,18 @@
 import subprocess
 
-def searchandreplace(filepath: str, pattern: str, newcontent: str) -> dict:
+def searchandreplace(filepath: str, pattern: str) -> dict:
     """
     Search a pattern and replace it with new content.
+    Example patter: /test/replaced/g
+
+    args:
+        str: filepath
+        str: pattern
+    return:
+        None
     """
     try:
-        vimcmd = f"%s/{pattern}/{newcontent}/g"
+        vimcmd = f"%s{pattern}"
         cmd = ["vim", "-Es", f"+normal! {vimcmd}", "+x", filepath]
         result = subprocess.run(cmd, capture_output=True, text=True)
         return {"success": True, "message": "OK", "data": None}
