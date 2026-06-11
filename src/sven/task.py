@@ -13,6 +13,7 @@ from sven.tools.vim.edit import searchandreplace
 from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
 from sven.tools.vim.autoformat import autoformat
+from sven.tools.python.compilefile import compilefile
 
 available_functions = {
   'getdatetime': getdatetime,
@@ -25,6 +26,7 @@ available_functions = {
   'searchandreplace': searchandreplace,
   'replacefile': replacefile,
   'replaceline': replaceline,
+  'compilefile': compilefile,
 }
 tools = list(available_functions.values())
 
