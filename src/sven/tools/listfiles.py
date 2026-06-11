@@ -1,12 +1,12 @@
 import subprocess
 
-def listfiles() -> str:
+def listfiles() -> dict:
     """
     List files in current directory
-    Args:
-        None
-    Returns:
-        list of files in the current directory
     """
-    result = subprocess.run([ "find", "." ], capture_output=True, text=True)
-    return result.stdout
+    try:
+        result = subprocess.run(["find", "."], capture_output=True, text=True)
+        return {"success": True, "message": "OK", "data": result.stdout}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+

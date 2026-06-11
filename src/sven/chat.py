@@ -43,12 +43,12 @@ def interactive_chat(
         Ollama model name (e.g. 'gpt-oss:20b').
     options : Options, optional
         Generation parameters; if omitted a default of
-        `temperature=0.3` is used.
+        `temperature=0.0` is used.
     system_prompt : str, optional
         Initial system message that sets the assistant's role.
     """
     if options is None:
-        options = Options(temperature=0.3)
+        options = Options(temperature=0.0)
 
     # Conversation history
     messages = [{"role": "system", "content": system_prompt}]
@@ -78,9 +78,12 @@ def interactive_chat(
                     if tc.function.name in available_functions:
                         print(f"\x1b[33m\ttoolcall {tc.function.name} with arguments {tc.function.arguments}\x1b[0m")
                         result = available_functions[tc.function.name](**tc.function.arguments)
-                        #print(f"Result: {result}")
-                        # add the tool result to the messages
-                        messages.append({'role': 'tool', 'tool_name': tc.function.name, 'content': str(result)})
+                        # Result is a dict with 'success', 'message', 'data'
+                        if result.get("success"):
+                            content = result.get("data") if result.get("data") is not None else ""
+                        else:
+                            content = f"Error: {result.get('message')}"
+                        messages.append({"role": "tool", "tool_name": tc.function.name, "content": str(content)})
             else:
                 print(f"\x1b[31mSven\033[0m: {response.message.content}")
                 # end the loop when there are no more tool calls

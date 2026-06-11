@@ -1,9 +1,10 @@
 import datetime
 
-def getdatetime() -> str:
+def getdatetime() -> dict:
     """gets current datetime"""
-    """
-    Returns:
-        Current Datetime
-    """
-    return datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y");
+    try:
+        now = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
+        return {"success": True, "message": "OK", "data": now}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+

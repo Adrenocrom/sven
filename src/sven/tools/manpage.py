@@ -1,14 +1,12 @@
 import subprocess
 
-def manpage(programname: str) -> str:
+def manpage(programname: str) -> dict:
     """
     Get the manual page for a program.
-
-    Args:
-        programname: The name of the program to get the manual page for.
-
-    Returns:
-        A string containing the manual page.
     """
-    result = subprocess.run(["man", programname], capture_output=True, text=True)
-    return result.stdout
+    try:
+        result = subprocess.run(["man", programname], capture_output=True, text=True)
+        return {"success": True, "message": "OK", "data": result.stdout}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+

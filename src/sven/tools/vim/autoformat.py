@@ -1,15 +1,13 @@
 import subprocess
 
-def autoformat(filepath: str) -> None:
+def autoformat(filepath: str) -> dict:
     """
-    autoformat the given file
-
-    Args:
-        filepath (str): The path of the file to format.
-
-    Returns:
-        None
+    Auto format file using vim's formatting.
     """
-    cmd = [ "vim", "-Es", "+normal! gg=G", "+x", filepath ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    return
+    try:
+        cmd = ["vim", "-Es", "+normal! gqG", "+x", filepath]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        return {"success": True, "message": "OK", "data": None}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+
