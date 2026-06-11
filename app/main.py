@@ -13,9 +13,12 @@ if __name__ == "__main__":
         run_prompt_sequence(prompts=[
             "check for existing errors. List them",
             "fix errors.",
+            ],model="gemma4:12b")
+        commit("bot - fixed")
+        run_prompt_sequence(prompts=[
             "review the code",
             "read `improv.md`"
-            "implement improvments`"
+            "implement only one improvement."
             "review the code, and rewrite the `improv.md`, remove already implemented feature and add new ones."
             ],model="gemma4:12b")
-        commit("bot - commit")
+        commit("bot - improved")
