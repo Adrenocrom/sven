@@ -6,7 +6,6 @@ if __name__ == "__main__":
     # You can change the model name or tweak options here
     #interactive_chat(model="gemma4:12b")
     # Or you can use a prompt sequence to run multiple tasks in sequence
-    print("commit")
     commit("start the sprint")
     for i in range(1, 10):
         print(f"sprint {i}")
