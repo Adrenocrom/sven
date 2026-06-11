@@ -11,11 +11,11 @@ if __name__ == "__main__":
         print(f"sprint {i}")
         run_prompt_sequence(prompts=[
             "Read `./improv.md` you task is to select one feature. Nothing more.",
-            "Try to describe the choosen feautre in `./work.md`, do not implement anything."
+            "Try to describe the choosen feautre by overriting `./todo.md`, do not implement anything."
             ],model="gemma4:12b")
         commit("bot - step created")
         run_prompt_sequence(prompts=[
-            "Open `./work.md`, read it carefully, and carry out the tasks described inside.",
+            "Open `./todo.md`, read it carefully, and carry out the tasks described inside.",
             ],model="gemma4:12b")
         commit("bot - improved")
         run_prompt_sequence(prompts=[
