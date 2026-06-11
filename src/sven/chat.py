@@ -12,14 +12,12 @@ from sven.tools.vim.read import read
 from sven.tools.vim.edit import searchandreplace
 from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
-from sven.tools.vim.autoformat import autoformat
 from sven.tools.python.compilefile import compilefile
 
 available_functions = {
   'getdatetime': getdatetime,
   'websearch': websearch,
   'manpage': manpage,
-  'autoformat': autoformat,
   'read': read,
   'touch': touch,
   'listfiles': listfiles,

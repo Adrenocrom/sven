@@ -10,14 +10,11 @@ if __name__ == "__main__":
     for i in range(1, 10):
         print(f"sprint {i}")
         run_prompt_sequence(prompts=[
-            "check for existing errors. List them",
-            "fix errors.",
-            ],model="gemma4:12b")
-        commit("bot - fixed")
-        run_prompt_sequence(prompts=[
-            "review the code",
             "read `improv.md`"
-            "implement only one improvement."
-            "review the code, and rewrite the `improv.md`, remove already implemented feature and add new ones."
+            "choose one feature you want to implement"
+            "implement the feature"
+            "compile the code you chaged"
+            "compile the code"
+            "review the changes, refine `improv.md` and add new feautures."
             ],model="gemma4:12b")
         commit("bot - improved")
