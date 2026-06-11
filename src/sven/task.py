@@ -49,6 +49,7 @@ def run_prompt_sequence(
     count = 1
     for prompt in prompts:
         print(f"Running {count} of up to {size} prompts...")
+        count+=1
         messages.append({"role": "user", "content": prompt})
 
         while True:
