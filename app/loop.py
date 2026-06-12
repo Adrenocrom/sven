@@ -17,12 +17,9 @@ if __name__ == "__main__":
             ```
 
             Choose one todo.
-            """
-            ],model="gemma4:12b", available_functions={})
-        run_prompt_sequence(prompts=[
-            """
-            Implement the selected TODO.
-            """
+            """,
+            "Implement the selected TODO."
+            "Rewrite the todo file. Create new features."
             ],model="gemma4:12b")
         commit("bot")
         comiler = compilefiles()
@@ -34,14 +31,3 @@ if __name__ == "__main__":
             """
             ],model="gemma4:12b")
         commit("bot - fixes")
-        run_prompt_sequence(prompts=[
-            f"""
-            TODOS:
-            ```
-            {todo}
-            ```
-
-            Rewrite the todo file. Create new features.
-            """
-            ],model="gemma4:12b")
-        commit("bot - new todo")
