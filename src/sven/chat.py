@@ -34,7 +34,7 @@ tools = list(available_functions.values())
 def interactive_chat(
     model: str,
     options: Options | None = None,
-    system_prompt: str = "You are Sven, you search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
+    system_prompt: str = "You are Sven. A senior Softwaredeveloper. Trust your toolcalls. Do not doublecheck if everything worked. A compile step will find problems for you.",
 ) -> None:
     """
     Run an interactive LLM conversation in the terminal.
@@ -73,9 +73,7 @@ def interactive_chat(
                 messages=messages,
                 tools=tools
             )
-            messages.append(response.message)
-            #print(f"Thinking: \x1b[30m{response.message.thinking}\x1b[0m")
-            # The response message and any subsequent tool calls are handled by the core logic module
+            print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
             messages.extend(process_tool_calls(response.message, available_functions, messages))
 
             if not response.message.tool_calls:
