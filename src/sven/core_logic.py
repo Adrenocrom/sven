@@ -4,7 +4,7 @@ import logging
 # Setup a standard logger
 logger = logging.getLogger(__name__)
 
-wrinting_tools = ['replacefile', 'replaceline', 'touch']
+writing_tools = ['replacefile', 'replaceline', 'touch']
 
 def process_tool_calls(
         response_message, 
@@ -38,17 +38,19 @@ def process_tool_calls(
     for tc in response_message.tool_calls:
         func_name = tc.function.name
         if func_name in available_functions:
-            if func_name in wrinting_tools:
-                logger.info(f"Executing writing tool: {func_name} with arguments {tc.function.arguments}")
+            if func_name in writing_tools:
+                logger.info(f"Executing file modification tool '{func_name}' with arguments: {tc.function.arguments}")
             else:
-                logger.info(f"Executing tool: {func_name} with arguments {tc.function.arguments}")
+                logger.info(f"Executing standard tool '{func_name}' with arguments: {tc.function.arguments}")
 
             try:
                 result = available_functions[func_name](**tc.function.arguments)
                 if result.get("success"):
                     content = result.get("data") if result.get("data") is not None else ""
                 else:
-                    content = f"Error: {result.get('message')}"
+                    error_msg = result.get('message', 'Unknown error')
+                    logger.warning(f"Tool '{func_name}' reported failure: {error_msg}")
+                    content = f"Error: {error_msg}"
                 messages.append({
                     "role": "tool", 
                     "tool_name": func_name, 
@@ -56,7 +58,7 @@ def process_tool_calls(
                     })
 
             except Exception as e:
-                logger.error(f"Failed to execute tool {func_name}: {str(e)}")
+                logger.error(f"Exception occurred while executing tool '{func_name}': {str(e)}")
                 content = f"Error: {str(e)}"
                 messages.append({
                     "role": "tool", 
