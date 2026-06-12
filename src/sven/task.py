@@ -18,7 +18,7 @@ from sven.tools.python.compilefiles import compilefiles
 
 from sven.core_logic import process_tool_calls
 
-available_functions: Dict[str, Any] = {
+all_available_functions: Dict[str, Any] = {
   'getdatetime': getdatetime,
   'websearch': websearch,
   'webfetch': webfetch,
@@ -31,13 +31,13 @@ available_functions: Dict[str, Any] = {
   'replaceline': replaceline,
   'compilefiles': compilefiles,
 }
-tools = list(available_functions.values())
 
 # Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
 def run_prompt_sequence(
     prompts: List[str],
     model: str,
     options: Options | None = None,
+    available_functions: Dict[str, Any] = all_available_functions,
     system_prompt: str = "You are Sven, you search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
 ) -> None:
     if options is None:
@@ -55,7 +55,7 @@ def run_prompt_sequence(
             response = chat(
                 model=model,
                 messages=messages,
-                tools=tools
+                tools=list(available_functions.values())
             )
             print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
             messages.extend(process_tool_calls(response.message, available_functions, messages))
