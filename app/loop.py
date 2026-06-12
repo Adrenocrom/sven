@@ -10,19 +10,19 @@ if __name__ == "__main__":
         with open("todo.md", 'r', encoding='utf-8') as file:
             todo = file.read()
         print(f"sprint {i}")
-        #run_prompt_sequence(prompts=[
-        #    f"""
-        #    TODOS:
-        #    ```
-        #    {todo}
-        #    ```
+        run_prompt_sequence(prompts=[
+            f"""
+            TODOS:
+            ```
+            {todo}
+            ```
 
-        #    Choose one todo.
-        #    """,
-        #    "Implement the selected TODO.",
-        #    "Rewrite the todo file. Create new features."
-        #    ],model="gemma4:12b")
-        #commit("bot")
+            Choose one todo.
+            """,
+            "Implement the selected TODO.",
+            "Rewrite the todo file. Create new features."
+            ],model="gemma4:12b")
+        commit("bot")
         comiler = compilefiles()
         run_prompt_sequence(prompts=[
             f"""
