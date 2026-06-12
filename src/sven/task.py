@@ -57,7 +57,8 @@ def run_prompt_sequence(
                 messages=messages,
                 tools=list(available_functions.values())
             )
-            print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
+            if response.message.thinking is not None:
+                print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
             messages.extend(process_tool_calls(response.message, available_functions, messages))
 
             if not response.message.tool_calls:
