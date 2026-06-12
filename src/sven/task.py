@@ -14,7 +14,7 @@ from sven.tools.vim.read import read
 from sven.tools.vim.edit import searchandreplace
 from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
-from sven.tools.python.compilefile import compilefile
+from sven.tools.python.compilefiles import compilefiles
 
 from sven.core_logic import process_tool_calls
 
@@ -26,10 +26,10 @@ available_functions: Dict[str, Any] = {
   'read': read,
   'touch': touch,
   'listfiles': listfiles,
-  #'searchandreplace': searchandreplace,
+  'searchandreplace': searchandreplace,
   'replacefile': replacefile,
   'replaceline': replaceline,
-  'compilefile': compilefile,
+  'compilefiles': compilefiles,
 }
 tools = list(available_functions.values())
 
