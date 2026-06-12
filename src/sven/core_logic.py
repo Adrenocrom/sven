@@ -18,11 +18,17 @@ def process_tool_calls(
         The updated message list after processing tool calls.
     """
     if not response_message.tool_calls:
-        messages.append(response_message)
+        messages.append({
+                'role': 'assistant',
+                'content': response_message.content,
+            })
         return messages
 
     # Append the original model's response first
-    messages.append(response_message)
+    messages.append({
+            'role': ' assistant',
+            'tool_calls': response_message.tool_calls,
+        })
 
     for tc in response_message.tool_calls:
         func_name = tc.function.name

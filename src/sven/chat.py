@@ -5,6 +5,7 @@ from ollama import chat, Options
 
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
+from sven.tools.webfetch import webfetch
 from sven.tools.manpage import manpage
 from sven.tools.touch import touch
 from sven.tools.listfiles import listfiles
@@ -19,6 +20,7 @@ from sven.core_logic import process_tool_calls
 available_functions = {
   'getdatetime': getdatetime,
   'websearch': websearch,
+  'webfetch': webfetch,
   'manpage': manpage,
   'read': read,
   'touch': touch,
