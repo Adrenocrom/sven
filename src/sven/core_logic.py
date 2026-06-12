@@ -37,32 +37,38 @@ def process_tool_calls(
 
     for tc in response_message.tool_calls:
         func_name = tc.function.name
-        if func_name in available_functions:
-            if func_name in writing_tools:
-                logger.info(f"Executing file modification tool '{func_name}' with arguments: {tc.function.arguments}")
+        if func_name not in available_functions:
+            logger.error(f"Tool '{func_name}' is not available.")
+            continue
+
+        arguments = tc.function.arguments
+        if func_name in writing_tools:
+            logger.info(f"Executing file modification tool '{func_name}' with args: {arguments}")
+        else:
+            logger.info(f"Executing system tool '{func_name}' with args: {arguments}")
+
+        try:
+            result = available_functions[func_name](**arguments)
+            if result.get("success"):
+                content = result.get("data") if result.get("data") is not None else ""
+                logger.debug(f"Tool '{func_name}' executed successfully.")
             else:
-                logger.info(f"Executing standard tool '{func_name}' with arguments: {tc.function.arguments}")
+                error_msg = result.get('message', 'Unknown error')
+                logger.warning(f"Tool '{func_name}' failed with logic error: {error_msg}")
+                content = f"Error: {error_msg}"
+            
+            messages.append({
+                "role": "tool", 
+                "tool_name": func_name, 
+                "content": str(content)
+                })
 
-            try:
-                result = available_functions[func_name](**tc.function.arguments)
-                if result.get("success"):
-                    content = result.get("data") if result.get("data") is not None else ""
-                else:
-                    error_msg = result.get('message', 'Unknown error')
-                    logger.warning(f"Tool '{func_name}' reported failure: {error_msg}")
-                    content = f"Error: {error_msg}"
-                messages.append({
-                    "role": "tool", 
-                    "tool_name": func_name, 
-                    "content": str(content)
-                    })
-
-            except Exception as e:
-                logger.error(f"Exception occurred while executing tool '{func_name}': {str(e)}")
-                content = f"Error: {str(e)}"
-                messages.append({
-                    "role": "tool", 
-                    "tool_name": func_name, 
-                    "content": str(content)
-                    })
+        except Exception as e:
+            logger.exception(f"Exception occurred while executing tool '{func_name}': {str(e)}")
+            content = f"Error: {str(e)}"
+            messages.append({
+                "role": "tool", 
+                "tool_name": func_name, 
+                "content": str(content)
+                })
     return messages

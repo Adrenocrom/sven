@@ -38,10 +38,10 @@ def run_prompt_sequence(
     model: str,
     options: Options | None = None,
     available_functions: Dict[str, Any] = all_available_functions,
-    system_prompt: str = "You are Sven, you search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
+    system_prompt: str = "You are Sven! You search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
 ) -> None:
     if options is None:
-        options = Options(temperature=0.0)
+        options = Options(temperature=0.1)
 
     messages = [{"role": "system", "content": system_prompt}]
     size = len(prompts)
