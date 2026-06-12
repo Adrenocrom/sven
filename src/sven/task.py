@@ -16,7 +16,6 @@ from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
 from sven.tools.python.compilefile import compilefile
 
-# Importing the shared logic to reduce redundancy
 from sven.core_logic import process_tool_calls
 
 available_functions: Dict[str, Any] = {

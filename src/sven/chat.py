@@ -14,6 +14,8 @@ from sven.tools.vim.edit import replacefile
 from sven.tools.vim.edit import replaceline
 from sven.tools.python.compilefile import compilefile
 
+from sven.core_logic import process_tool_calls
+
 available_functions = {
   'getdatetime': getdatetime,
   'websearch': websearch,
