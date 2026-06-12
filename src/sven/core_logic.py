@@ -1,6 +1,11 @@
 from typing import Dict, List, Optional
+import logging
 
-wrinting_tools = [  'replacefile', 'replaceline', 'touch' ]
+# Setup a standard logger
+logger = logging.getLogger(__name__)
+
+wrinting_tools = ['replacefile', 'replaceline', 'touch']
+
 def process_tool_calls(
         response_message, 
         available_functions: Dict[str, any], 
@@ -26,7 +31,7 @@ def process_tool_calls(
 
     # Append the original model's response first
     messages.append({
-            'role': ' assistant',
+            'role': 'assistant',
             'tool_calls': response_message.tool_calls,
         })
 
@@ -34,9 +39,9 @@ def process_tool_calls(
         func_name = tc.function.name
         if func_name in available_functions:
             if func_name in wrinting_tools:
-                print(f"\x1b[32mtoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
+                logger.info(f"Executing writing tool: {func_name} with arguments {tc.function.arguments}")
             else:
-                print(f"\x1b[34mtoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
+                logger.info(f"Executing tool: {func_name} with arguments {tc.function.arguments}")
 
             try:
                 result = available_functions[func_name](**tc.function.arguments)
@@ -51,6 +56,7 @@ def process_tool_calls(
                     })
 
             except Exception as e:
+                logger.error(f"Failed to execute tool {func_name}: {str(e)}")
                 content = f"Error: {str(e)}"
                 messages.append({
                     "role": "tool", 
@@ -58,4 +64,3 @@ def process_tool_calls(
                     "content": str(content)
                     })
     return messages
-
