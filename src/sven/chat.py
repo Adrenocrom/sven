@@ -13,7 +13,7 @@ from sven.tools.read import read
 from sven.tools.edit import searchandreplace
 from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
-from sven.tools.python.compilefile import compilefile
+from sven.tools.python import compilefile
 
 from sven.core_logic import process_tool_calls
 

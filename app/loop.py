@@ -1,6 +1,6 @@
 from sven.task import run_prompt_sequence
 from sven.tools.git import commit
-from sven.tools.python.compilefiles import compilefiles
+from sven.tools.python import compilefiles
 
 if __name__ == "__main__":
     commit("start the sprint")

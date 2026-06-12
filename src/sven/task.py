@@ -14,7 +14,7 @@ from sven.tools.read import read
 from sven.tools.edit import searchandreplace
 from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
-from sven.tools.python.compilefiles import compilefiles
+from sven.tools.python import compilefiles
 
 from sven.core_logic import process_tool_calls
 
