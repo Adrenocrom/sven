@@ -2,13 +2,13 @@ from typing import Dict, List, Optional
 
 wrinting_tools = [  'replacefile', 'replaceline', 'touch' ]
 def process_tool_calls(
-    response_message, 
-    available_functions: Dict[str, any], 
-    messages: list
-) -> list:
+        response_message, 
+        available_functions: Dict[str, any], 
+        messages: list
+        ) -> list:
     """
     Process tool calls from a model response.
-    
+
     Args:
         response_message: The message object returned by the Ollama client.
         available_functions: A map of function names to actual python callables.
@@ -23,7 +23,7 @@ def process_tool_calls(
 
     # Append the original model's response first
     messages.append(response_message)
-    
+
     for tc in response_message.tool_calls:
         func_name = tc.function.name
         if func_name in available_functions:
@@ -31,18 +31,25 @@ def process_tool_calls(
                 print(f"\x1b[32m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
             else:
                 print(f"\x1b[34m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
-            result = available_functions[func_name](**tc.function.arguments)
-            
-            if result.get("success"):
-                content = result.get("data") if result.get("data") is not None else ""
-            else:
-                content = f"Error: {result.get('message')}"
-            
-            messages.append({
-                "role": "tool", 
-                "tool_name": func_name, 
-                "content": str(content)
-            })
-    
+
+            try:
+                result = available_functions[func_name](**tc.function.arguments)
+                if result.get("success"):
+                    content = result.get("data") if result.get("data") is not None else ""
+                else:
+                    content = f"Error: {result.get('message')}"
+                messages.append({
+                    "role": "tool", 
+                    "tool_name": func_name, 
+                    "content": str(content)
+                    })
+
+            except Exception as e:
+                content = f"Error: {str(e)}"
+                messages.append({
+                    "role": "tool", 
+                    "tool_name": func_name, 
+                    "content": str(content)
+                    })
     return messages
 

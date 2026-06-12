@@ -5,8 +5,9 @@ def read(filepath: str) -> dict:
     Read the content of a file.
     """
     try:
-        result = subprocess.run(["cat", filepath], capture_output=True, text=True)
-        return {"success": True, "message": "OK", "data": result.stdout}
+        with open(filepath, 'r', encoding='utf-8') as file:
+            data = file.read()
+        return {"success": True, "message": "OK", "data": data}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
 
