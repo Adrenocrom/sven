@@ -1,1 +1,1 @@
-add the existing webfetch tool to task.py and chat.py.
+review the code and add new features to the todolist

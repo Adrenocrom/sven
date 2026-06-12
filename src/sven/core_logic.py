@@ -34,9 +34,9 @@ def process_tool_calls(
         func_name = tc.function.name
         if func_name in available_functions:
             if func_name in wrinting_tools:
-                print(f"\x1b[32m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
+                print(f"\x1b[32mtoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
             else:
-                print(f"\x1b[34m\ttoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
+                print(f"\x1b[34mtoolcall {func_name} with arguments {tc.function.arguments}\x1b[0m")
 
             try:
                 result = available_functions[func_name](**tc.function.arguments)

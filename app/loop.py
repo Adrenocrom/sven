@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
             Choose one todo.
             """,
-            "Implement the selected TODO."
+            "Implement the selected TODO.",
             "Rewrite the todo file. Create new features."
             ],model="gemma4:12b")
         commit("bot")
