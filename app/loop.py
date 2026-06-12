@@ -4,7 +4,7 @@ from sven.tools.python import compilefiles
 
 if __name__ == "__main__":
     commit("start the sprint")
-    for i in range(1, 24):
+    while True:
         with open("todo.md", 'r', encoding='utf-8') as file:
             todo = file.read()
         print(f"sprint {i}")
