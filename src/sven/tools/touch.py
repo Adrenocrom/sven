@@ -1,5 +1,7 @@
 import subprocess
 
+from sven.tools import git
+
 def touch(filepath: str) -> dict:
     """
     Create a file via touch
@@ -9,6 +11,7 @@ def touch(filepath: str) -> dict:
         result = subprocess.run(cmd, capture_output=True, text=True)
         # If exit code is 0, success.
         if result.returncode == 0:
+            git.add(filepath)
             return {"success": True, "message": f'File {filepath} created.', "data": None}
         else:
             return {"success": False, "message": result.stderr or 'Unknown error', "data": None}

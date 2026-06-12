@@ -1,0 +1,63 @@
+import subprocess
+
+def add(filepath: str) -> dict:
+    """
+    does a git add
+
+    args:
+        str: filepath
+
+    return:
+        None
+    """
+    try:
+        result = subprocess.run(["git", "add", filepath], capture_output=True, text=True)
+        return {"success": True, "message": "OK", "data": result.stdout}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+
+def push() -> dict:
+    """
+    does a git push
+
+    return:
+        None
+    """
+    try:
+        print("Pushing to remote...")
+        result = subprocess.run(["git", "push"], capture_output=True, text=True)
+        return {"success": True, "message": "OK", "data": result.stdout}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+
+def commit(message: str) -> dict:
+    """
+    does a git commit
+
+    args:
+        str: message
+    return:
+        None
+    """
+    try:
+        print(f"Commiting: {message}")
+        result = subprocess.run(["git", "commit", "-am", message], capture_output=True, text=True)
+        push()
+        return {"success": True, "message": "OK", "data": result.stdout}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+def commit(message: str) -> dict:
+    """
+    does a git commit
+
+    args:
+        str: message
+    return:
+        None
+    """
+    try:
+        print(f"Commiting: {message}")
+        result = subprocess.run(["git", "commit", "-am", message], capture_output=True, text=True)
+        return {"success": True, "message": "OK", "data": result.stdout}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}

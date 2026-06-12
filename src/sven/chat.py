@@ -9,10 +9,10 @@ from sven.tools.webfetch import webfetch
 from sven.tools.manpage import manpage
 from sven.tools.touch import touch
 from sven.tools.listfiles import listfiles
-from sven.tools.vim.read import read
-from sven.tools.vim.edit import searchandreplace
-from sven.tools.vim.edit import replacefile
-from sven.tools.vim.edit import replaceline
+from sven.tools.read import read
+from sven.tools.edit import searchandreplace
+from sven.tools.edit import replacefile
+from sven.tools.edit import replaceline
 from sven.tools.python.compilefile import compilefile
 
 from sven.core_logic import process_tool_calls
