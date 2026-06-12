@@ -23,7 +23,7 @@ if __name__ == "__main__":
         #    "Rewrite the todo file. Create new features."
         #    ],model="gemma4:12b")
         #commit("bot")
-        #comiler = compilefiles()
+        comiler = compilefiles()
         run_prompt_sequence(prompts=[
             f"""
             compileroutput:
