@@ -49,6 +49,8 @@ def process_tool_calls(
 
         try:
             result = available_functions[func_name](**arguments)
+            
+            # Consistent formatting for tool output content
             if result.get("success"):
                 content = result.get("data") if result.get("data") is not None else ""
                 logger.debug(f"Tool '{func_name}' executed successfully.")
