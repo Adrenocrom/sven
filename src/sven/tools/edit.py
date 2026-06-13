@@ -20,7 +20,6 @@ def searchandreplace(filepath: str, oldcontent: str, newcontent: str) -> dict:
         with open(filepath, 'w', encoding='utf-8') as file:
             file.write(new_data)
 
-        git.add(filepath)
         return {"success": True, "message": "OK", "data": None}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
@@ -39,7 +38,6 @@ def replacefile(filepath: str, newcontent: str) -> dict:
     try:
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(newcontent)
-        git.add(filepath)
         return {"success": True, "message": "OK", "data": None}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}

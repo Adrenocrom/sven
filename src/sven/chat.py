@@ -59,7 +59,7 @@ def interactive_chat(
 
     while True:
         try:
-            user_text = input("\nUser: ")
+            user_text = input("\n\x1b[32mYou\x1b[0m: ")
         except EOFError:  # Ctrl‑D (Unix) / Ctrl‑Z (Windows)
             print("\n[Conversation ended]")
             break
@@ -75,6 +75,8 @@ def interactive_chat(
                 messages=messages,
                 tools=tools
             )
+            print(f"Prompt tokens: {response.get('prompt_eval_count')}")
+            print(f"Output tokens: {response.get('eval_count')}")
             if response.message.thinking is not None:
                 print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
             messages.extend(process_tool_calls(response.message, available_functions, messages))
