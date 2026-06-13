@@ -15,8 +15,8 @@ from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
 from sven.tools.python import compilefile
 
-from sven.core_logic import process_tool_calls
-from sven.core_logic import send
+from sven.core import process_tool_calls
+from sven.core import send
 
 available_functions = {
   'getdatetime': getdatetime,
