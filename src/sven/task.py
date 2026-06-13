@@ -49,6 +49,10 @@ def run_prompt_sequence(
     for prompt in prompts:
         print(f"Running {count} of up to {size} prompts...")
         count+=1
+
+        if latest_prompt_eval_count > 65536:
+            messages = summarize_conversation(messages, system_prompt) # Note: you might need to pass 'model' if it varies
+
         messages.append({"role": "user", "content": prompt})
 
         while True:

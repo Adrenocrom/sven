@@ -7,6 +7,24 @@ logger = logging.getLogger(__name__)
 
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
+def summarize_conversation(messages: list, system_prompt: str, model: str) -> list:
+    """
+    Summarize the conversation history when it exceeds a certain limit.
+    Returns a new message list containing the system prompt followed by the summary.
+    """
+    summary_context = [m for m in messages if m["role"] != "system"]
+    summary_response = chat(
+        model=model,
+        messages=[
+            {"role": "system", "content": "Summarize the following conversation briefly while retaining all key information and context. Do not include system instructions or persona details."},
+            *summary_context
+        ],
+    )
+    return [
+        {"role": "system", "content": system_prompt},
+        {"role": "assistant", "content": f"Summary of previous conversation: {summary_response.message.content}"}
+    ]
+
 def process_tool_calls(
         response_message, 
         available_functions: Dict[str, any], 
