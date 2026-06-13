@@ -15,7 +15,7 @@ from sven.tools.edit import searchandreplace
 from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
 from sven.tools.python import compilefile, compilefiles
-from sven.tools.task import add_task, current_task, cancel_task, complete_task
+from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 
 from sven.core import process_tool_calls
 from sven.core import send
@@ -43,6 +43,7 @@ available_functions = {
   'compilefiles': compilefiles,
   'add_task': add_task,
   'current_task': current_task,
+  'list_tasks': list_tasks,
   'cancel_task': cancel_task,
   'complete_task': complete_task,
 }
