@@ -69,6 +69,24 @@ def interactive_chat(
 
         messages.append({"role": "user", "content": user_text})
 
+        # Check if we need to summarize the history before proceeding
+        # We count messages excluding the system prompt (index 0)
+        if len(messages) > 10:
+            print("--- Summarizing context ---")
+            summary_context = [m for m in messages if m["role"] != "system"]
+            summary_response = chat(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "Summarize the following conversation briefly while retaining all key information and context. Do not include system instructions or persona details."},
+                    *summary_context
+                ],
+            )
+            # Replace history with summarized version (keeping the original system prompt at index 0)
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "assistant", "content": f"Summary of previous conversation: {summary_response.message.content}"}
+            ]
+
         while True:
             response: ChatResponse = chat(
                 model=model,
@@ -84,4 +102,3 @@ def interactive_chat(
             if not response.message.tool_calls:
                 print(f"\x1b[31mSven\033[0m: {response.message.content}")
                 break
-

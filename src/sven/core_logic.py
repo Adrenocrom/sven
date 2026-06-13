@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional
+from ollama import chat, Options
 import logging
 
 # Setup a standard logger
@@ -58,7 +59,7 @@ def process_tool_calls(
                 error_msg = result.get('message', 'Unknown error')
                 logger.warning(f"Tool '{func_name}' failed with logic error: {error_msg}")
                 content = f"Error: {error_msg}"
-            
+
             messages.append({
                 "role": "tool", 
                 "tool_name": func_name, 
@@ -66,7 +67,7 @@ def process_tool_calls(
                 })
 
         except Exception as e:
-            logger.exception(f"Exception occurred while executing tool '{func_name}': {str(e)}")
+            logger.exception(f"Exception occurred while handling tool '{func_name}': {str(e)}")
             content = f"Error: {str(e)}"
             messages.append({
                 "role": "tool", 
