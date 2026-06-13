@@ -4,7 +4,7 @@ Module providing tools for managing a task queue using FIFO logic.
 
 from collections import deque
 from typing import Optional
-from src.sven.task_model import Task
+from sven.task_model import Task
 
 # A global queue to store tasks internally during the session.
 # In a production environment, this might be persisted in a database or file.

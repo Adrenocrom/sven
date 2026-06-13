@@ -14,10 +14,12 @@ from sven.tools.read import read
 from sven.tools.edit import searchandreplace
 from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
-from sven.tools.python import compilefile
+from sven.tools.python import compilefile, compilefiles
+from sven.tools.task import add_task, current_task, cancel_task, complete_task
 
 from sven.core import process_tool_calls
 from sven.core import send
+
 
 def load_config() -> dict:
     try:
@@ -38,6 +40,11 @@ available_functions = {
   'replacefile': replacefile,
   'replaceline': replaceline,
   'compilefile': compilefile,
+  'compilefiles': compilefiles,
+  'add_task': add_task,
+  'current_task': current_task,
+  'cancel_task': cancel_task,
+  'complete_task': complete_task,
 }
 
 # Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
