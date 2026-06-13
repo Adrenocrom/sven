@@ -57,9 +57,10 @@ def interactive_chat(
     # Conversation history
     messages = [{"role": "system", "content": system_prompt}]
 
+    latest_prompt_eval_count = 0
     while True:
         try:
-            user_text = input("\n\x1b[32mYou\x1b[0m: ")
+            user_text = input("\n\x1b[34mUser\x1b[0m: ")
         except EOFError:  # Ctrl‑D (Unix) / Ctrl‑Z (Windows)
             print("\n[Conversation ended]")
             break
@@ -67,12 +68,7 @@ def interactive_chat(
         if not user_text.strip():
             continue  # ignore empty lines
 
-        messages.append({"role": "user", "content": user_text})
-
-        # Check if we need to summarize the history before proceeding
-        # We count messages excluding the system prompt (index 0)
-        if len(messages) > 10:
-            print("--- Summarizing context ---")
+        if latest_prompt_eval_count > 65536:
             summary_context = [m for m in messages if m["role"] != "system"]
             summary_response = chat(
                 model=model,
@@ -87,12 +83,14 @@ def interactive_chat(
                 {"role": "assistant", "content": f"Summary of previous conversation: {summary_response.message.content}"}
             ]
 
+        messages.append({"role": "user", "content": user_text})
         while True:
             response: ChatResponse = chat(
                 model=model,
                 messages=messages,
                 tools=tools
             )
+            latest_prompt_eval_count = response.get('prompt_eval_count')
             print(f"Prompt tokens: {response.get('prompt_eval_count')}")
             print(f"Output tokens: {response.get('eval_count')}")
             if response.message.thinking is not None:

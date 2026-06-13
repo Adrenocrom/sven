@@ -6,7 +6,7 @@ def webfetch(url: str) -> dict:
         str: url
     """
     try:
-        result = subprocess.run(["curl", "-L", url], capture_output=True, text=True)
+        result = subprocess.run(["web_fetch", url], capture_output=True, text=True)
         if result.returncode == 0:
             return {"success": True, "message": "OK", "data": result.stdout}
         else:
