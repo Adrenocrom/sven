@@ -1,3 +1,4 @@
+import pprint
 from typing import Dict, List, Optional
 from ollama import chat, Options
 import logging
@@ -24,7 +25,7 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
         print(f"Output tokens: {response.get('eval_count')}")
         if response.message.thinking is not None:
             print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
-        messages.extend(process_tool_calls(response.message, available_functions, messages))
+        messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
             print(f"\x1b[31mSven\033[0m: {response.message.content}")
