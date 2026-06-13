@@ -17,6 +17,7 @@ from sven.tools.edit import replaceline
 from sven.tools.python import compilefiles
 
 from sven.core_logic import process_tool_calls
+from sven.core_logic import send
 
 all_available_functions: Dict[str, Any] = {
   'getdatetime': getdatetime,
@@ -50,22 +51,4 @@ def run_prompt_sequence(
         print(f"Running {count} of up to {size} prompts...")
         count+=1
 
-        if latest_prompt_eval_count > 65536:
-            messages = summarize_conversation(messages, system_prompt) # Note: you might need to pass 'model' if it varies
-
-        messages.append({"role": "user", "content": prompt})
-
-        while True:
-            response = chat(
-                model=model,
-                messages=messages,
-                tools=list(available_functions.values())
-            )
-            if response.message.thinking is not None:
-                print(f"\x1b[33m{response.message.thinking}\x1b[0m")
-            messages.extend(process_tool_calls(response.message, available_functions, messages))
-
-            if not response.message.tool_calls:
-                print(f"{response.message.content}")
-                break
-
+        send(prompt, messages, system_prompt, model, available_functions)

@@ -16,6 +16,7 @@ from sven.tools.edit import replaceline
 from sven.tools.python import compilefile
 
 from sven.core_logic import process_tool_calls
+from sven.core_logic import send
 
 available_functions = {
   'getdatetime': getdatetime,
@@ -30,7 +31,6 @@ available_functions = {
   'replaceline': replaceline,
   'compilefile': compilefile,
 }
-tools = list(available_functions.values())
 
 # Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
 def interactive_chat(
@@ -68,23 +68,4 @@ def interactive_chat(
         if not user_text.strip():
             continue  # ignore empty lines
 
-        if latest_prompt_eval_count > 65536:
-            messages = summarize_conversation(messages, system_prompt) # Note: you might need to pass 'model' if it varies
-        messages.append({"role": "user", "content": user_text})
-
-        while True:
-            response: ChatResponse = chat(
-                model=model,
-                messages=messages,
-                tools=tools
-            )
-            latest_prompt_eval_count = response.get('prompt_eval_count')
-            print(f"Prompt tokens: {response.get('prompt_eval_count')}")
-            print(f"Output tokens: {response.get('eval_count')}")
-            if response.message.thinking is not None:
-                print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
-            messages.extend(process_tool_calls(response.message, available_functions, messages))
-
-            if not response.message.tool_calls:
-                print(f"\x1b[31mSven\033[0m: {response.message.content}")
-                break
+        send(user_text, messages, system_prompt, model, available_functions)

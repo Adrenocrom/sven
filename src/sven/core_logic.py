@@ -7,6 +7,29 @@ logger = logging.getLogger(__name__)
 
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
+def send(user_text: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any]) ->  list:
+    tools = list(available_functions.values())
+    if len(messages) > 1:
+        messages = summarize_conversation(messages, system_prompt, model) # Note: you might need to pass 'model' if it varies
+    messages.append({"role": "user", "content": user_text})
+
+    while True:
+        response: ChatResponse = chat(
+            model=model,
+            messages=messages,
+            tools=tools
+        )
+        latest_prompt_eval_count = response.get('prompt_eval_count')
+        print(f"Prompt tokens: {response.get('prompt_eval_count')}")
+        print(f"Output tokens: {response.get('eval_count')}")
+        if response.message.thinking is not None:
+            print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
+        messages.extend(process_tool_calls(response.message, available_functions, messages))
+
+        if not response.message.tool_calls:
+            print(f"\x1b[31mSven\033[0m: {response.message.content}")
+            break
+
 def summarize_conversation(messages: list, system_prompt: str, model: str) -> list:
     """
     Summarize the conversation history when it exceeds a certain limit.
