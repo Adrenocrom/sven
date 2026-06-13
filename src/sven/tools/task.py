@@ -77,3 +77,13 @@ def complete_task() -> dict:
     task = TASK_QUEUE.popleft()
     save_tasks_to_json(list(TASK_QUEUE), TASK_FILE)
     return {"success": True, "message": "OK", "data": task.to_dict()}
+
+def list_tasks() -> dict:
+    """
+    Lists all tasks in the queue.
+    
+    Returns:
+        A dictionary containing success status, message, and a list of task data.
+    """
+    tasks = [task.to_dict() for task in TASK_QUEUE]
+    return {"success": True, "message": "OK", "data": tasks}
