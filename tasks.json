@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": "14662e9e",
+    "description": "Implement Robust Error Handling for Tool Calls: Standardize the return type of all tools and add more granular error handling in core.py."
+  },
+  {
+    "id": "b69d4117",
+    "description": "Add State Management/Persistence: Implement a way to save and load sessions (e.g., using a local SQLite database or JSON files)."
+  },
+  {
+    "id": "3b327411",
+    "description": "Improve Context Window Management: Implement a more sophisticated sliding window or \"memory\" system that prioritizes relevant facts over just summarizing everything."
+  },
+  {
+    "id": "f401df58",
+    "description": "Add Multi-Step Task Planning: Implement a \"Plan\" mode where Sven first outlines steps and then executes them one by one (using the task tools)."
+  },
+  {
+    "id": "33d4811c",
+    "description": "Enhance File Manipulation Tools: Add capabilities like move_file, rename_file, or append_to_file."
+  },
+  {
+    "id": "bbc7cf62",
+    "description": "Add a \"Search\" Integration (Web Search): Ensure it has a robust implementation (e.g., using DuckDuckGo or Google API)."
+  },
+  {
+    "id": "08486b97",
+    "description": "Improve Configuration Management: Move from a simple config.json to a more robust configuration system that supports environment variables and different profiles (e.g., \"dev\", \"prod\")."
+  },
+  {
+    "id": "6335b60e",
+    "description": "Add Logging for Debugging: Implement a more detailed logging system that records tool inputs/outputs and LLM responses to a file."
+  },
+  {
+    "id": "61576bc5",
+    "description": "Improve CLI Interface: Enhance the interactive_chat loop with better formatting (e.g., using rich for tables, colors, and progress bars) and support for \"streaming\" responses from Ollama."
+  },
+  {
+    "id": "cd9a4d92",
+    "description": "Add Unit & Integration Tests: Create a test suite to verify that tool outputs are correctly parsed by core.py and that the conversation flow handles edge cases (like empty tool results or malformed JSON)."
+  }
+]
