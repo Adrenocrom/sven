@@ -11,9 +11,13 @@ dependencies = [
     "ollama (>=0.6.2,<0.7.0)"
 ]
 
+[project.scripts]
+sven = "sven.chat:interactive_chat"
+
 [tool.poetry]
 packages = [{include = "sven", from = "src"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
