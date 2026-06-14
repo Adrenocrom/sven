@@ -39,3 +39,4 @@
     "id": "cd9a4d92",
     "description": "Add Unit & Integration Tests: Create a test suite to verify that tool outputs are correctly parsed by core.py and that the conversation flow handles edge cases (like empty tool results or malformed JSON)."
   }
+]
