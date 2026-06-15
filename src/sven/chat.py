@@ -19,14 +19,7 @@ from sven.tools.task import add_task, current_task, cancel_task, complete_task, 
 
 from sven.core import process_tool_calls
 from sven.core import send
-
-
-def load_config() -> dict:
-    try:
-        with open("config.json", "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+from sven.config import load_config
 
 available_functions = {
   'getdatetime': getdatetime,
@@ -60,7 +53,7 @@ def interactive_chat(
     Parameters
     ----------
     model : str, optional
-        Ollama model name (e.g. 'gpt-oss:20b').
+        Ollama model name (e.g., 'gpt-oss:20b').
     options : Options, optional
         Generation parameters; if omitted a default of
         `temperature=0.0` is used.

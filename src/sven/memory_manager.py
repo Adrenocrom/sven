@@ -3,6 +3,11 @@ from typing import List, Optional
 import time
 import uuid
 import re
+import json
+import os
+
+# Import storage manager to persist facts
+from .storage_manager import load_session, save_session
 
 @dataclass
 class Fact:
@@ -12,6 +17,15 @@ class Fact:
     category: str = "general"
     timestamp: float = field(default_factory=time.time)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "content": self.content,
+            "score": self.score,
+            "category": self.category,
+            "timestamp": self.timestamp
+        }
+
 class MemoryManager:
     def __init__(self):
         self.facts: List[Fact] = []
@@ -20,6 +34,34 @@ class MemoryManager:
             "must", "should", "always", "never", "requirement", 
             "constraint", "important", "critical", "note:", "remember"
         ]
+        self._load_from_storage()
+
+    def _load_from_storage(self):
+        """
+        Load facts from the session storage.
+        """
+        state = load_session()
+        saved_facts = state.get("facts", [])
+        if isinstance(saved_facts, list):
+            self.facts = [
+                Fact(
+                    id=f["id"],
+                    content=f["content"],
+                    score=float(f["score"]),
+                    category=f["category"],
+                    timestamp=float(f["timestamp"])
+                )
+                for f in saved_facts
+            ]
+
+    def save_to_storage(self):
+        """
+        Save current facts to the session storage.
+        """
+        state = {
+            "facts": [f.to_dict() for f in self.facts]
+        }
+        save_session(state)
 
     def add_fact(self, content: str, category: str = "general") -> Fact:
         """
@@ -48,7 +90,7 @@ class MemoryManager:
             if re.search(r'(\w+\.(py|json|md|txt))', sentence):
                 score += 15.0
             
-            if score > 10: # Only keep things that meet a minimum threshold
+            if score > 10: # Only just keep things that meet a minimum threshold
                 fact = Fact(
                     id=str(uuid.uuid4()),
                     content=sentence,
@@ -58,6 +100,8 @@ class MemoryManager:
                 new_facts.append(fact)
         
         self.facts.extend(new_facts)
+        # Persist the new facts immediately
+        self.save_to_storage()
         return new_facts
 
     def update_scores(self):
@@ -75,6 +119,9 @@ class MemoryManager:
             # Decay score over time (simple linear decay)
             # This is a placeholder for more complex logic.
             pass
+        
+        # Save updated scores
+        self.save_to_storage()
 
     def get_high_value_facts(self, limit: int = 20) -> List[Fact]:
         """
@@ -88,4 +135,8 @@ class MemoryManager:
         """
         Remove facts that fall below a certain score threshold.
         """
+        initial_count = len(self.facts)
         self.facts = [f for f in self.facts if f.score >= threshold]
+        if len(self.facts) != initial_count:
+            self.save_to_storage()
+        return len(self.facts)

@@ -1,9 +1,5 @@
 [
   {
-    "id": "bbc7cf62",
-    "description": "Add a \"Search\" Integration (Web Search): Ensure it has a robust implementation (e.g., using DuckDuckGo or Google API)."
-  },
-  {
     "id": "08486b97",
     "description": "Improve Configuration Management: Move from a simple config.json to a more robust configuration system that supports environment variables and different profiles (e.g., \"dev\", \"prod\")."
   },
@@ -34,5 +30,25 @@
   {
     "id": "0d64adcb",
     "description": "Implement append_to_file tool in src/sven/tools/edit.py"
+  },
+  {
+    "id": "9a0c02db",
+    "description": "Implement Advanced Context Management: Refine context windowing and ranking for memory retrieval."
+  },
+  {
+    "id": "9e827769",
+    "description": "Implement Multi-Turn Tool Error Recovery: Add logic for the model to retry or correct its approach when a tool returns an error."
+  },
+  {
+    "id": "acba4e32",
+    "description": "Implement Dynamic System Prompting: Adjust system instructions based on detected task type."
+  },
+  {
+    "id": "d404686e",
+    "description": "Refine the websearch tool to use a more robust method (like `duckduckgo-search` library or a direct API) if possible, but first ensure it handles common cases well."
+  },
+  {
+    "id": "6d50ad46",
+    "description": "Create a configuration management module that supports environment variables and profiles (dev, prod)."
   }
 ]
