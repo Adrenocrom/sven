@@ -1,13 +1,5 @@
 [
   {
-    "id": "b69d4117",
-    "description": "Add State Management/Persistence: Implement a way to save and load sessions (e.g., using a local SQLite database or JSON files)."
-  },
-  {
-    "id": "3b327411",
-    "description": "Improve Context Window Management: Implement a more sophisticated sliding window or \"memory\" system that prioritizes relevant facts over just summarizing everything."
-  },
-  {
     "id": "f401df58",
     "description": "Add Multi-Step Task Planning: Implement a \"Plan\" mode where Sven first outlines steps and then executes them one by one (using the task tools)."
   },
