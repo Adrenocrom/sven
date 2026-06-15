@@ -33,7 +33,3 @@ If you want to contribute or develop features, follow these steps:
 2. Install dependencies with `poetry install`.
 3. Run tests using `pytest` (if applicable).
 4. Submit your changes via a pull request.
-
-## License
-
-This project is licensed under the MIT License.
