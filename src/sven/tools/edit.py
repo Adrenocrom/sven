@@ -1,4 +1,6 @@
 import subprocess
+import shutil
+import os
 
 from sven.tools import git
 
@@ -64,3 +66,51 @@ def replaceline(filepath: str, linenumber: int, newcontent: str) -> dict:
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
 
+def move_file(source: str, destination: str) -> dict:
+    """
+    Move a file from source to destination.
+
+    args:
+        str: source
+        str: destination
+    return:
+        dict: result of the operation
+    """
+    try:
+        shutil.move(source, destination)
+        return {"success": True, "message": "OK", "data": None}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+
+def rename_file(old_name: str, new_name: str) -> dict:
+    """
+    Rename a file from old_name to new_name.
+
+    args:
+        str: old_name
+        str: new_name
+    return:
+        dict: result of the operation
+    """
+    try:
+        os.rename(old_name, new_name)
+        return {"success": True, "message": "OK", "data": None}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}
+
+def append_to_file(filepath: str, content: str) -> dict:
+    """
+    Append content to the end of a file.
+
+    args:
+        str: filepath
+        str: content
+    return:
+        dict: result of the operation
+    """
+    try:
+        with open(filepath, 'a', encoding='utf-8') as f:
+            f.write(content)
+        return {"success": True, "message": "OK", "data": None}
+    except Exception as e:
+        return {"success": False, "message": str(e), "data": None}

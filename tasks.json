@@ -1,13 +1,5 @@
 [
   {
-    "id": "f401df58",
-    "description": "Add Multi-Step Task Planning: Implement a \"Plan\" mode where Sven first outlines steps and then executes them one by one (using the task tools)."
-  },
-  {
-    "id": "33d4811c",
-    "description": "Enhance File Manipulation Tools: Add capabilities like move_file, rename_file, or append_to_file."
-  },
-  {
     "id": "bbc7cf62",
     "description": "Add a \"Search\" Integration (Web Search): Ensure it has a robust implementation (e.g., using DuckDuckGo or Google API)."
   },
@@ -26,5 +18,21 @@
   {
     "id": "cd9a4d92",
     "description": "Add Unit & Integration Tests: Create a test suite to verify that tool outputs are correctly parsed by core.py and that the conversation flow handles edge cases (like empty tool results or malformed JSON)."
+  },
+  {
+    "id": "d2feb204",
+    "description": "Add Multi-Step Task Planning: Implement a \"Plan\" mode where Sven first outlines steps and then executes them one by one (using the task tools)."
+  },
+  {
+    "id": "c23becb1",
+    "description": "Implement move_file tool in src/sven/tools/edit.py"
+  },
+  {
+    "id": "48c66b5e",
+    "description": "Implement rename_file tool in src/sven/tools/edit.py"
+  },
+  {
+    "id": "0d64adcb",
+    "description": "Implement append_to_file tool in src/sven/tools/edit.py"
   }
 ]
