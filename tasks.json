@@ -1,9 +1,5 @@
 [
   {
-    "id": "14662e9e",
-    "description": "Implement Robust Error Handling for Tool Calls: Standardize the return type of all tools and add more granular error handling in core.py."
-  },
-  {
     "id": "b69d4117",
     "description": "Add State Management/Persistence: Implement a way to save and load sessions (e.g., using a local SQLite database or JSON files)."
   },

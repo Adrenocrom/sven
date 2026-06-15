@@ -95,12 +95,16 @@ def process_tool_calls(
             result = available_functions[func_name](**arguments)
             
             # Consistent formatting for tool output content
-            if result.get("success"):
+            if isinstance(result, dict) and result.get("success"):
                 content = result.get("data") if result.get("data") is not None else ""
                 logger.debug(f"Tool '{func_name}' executed successfully.")
             else:
-                error_msg = result.get('message', 'Unknown error')
-                logger.warning(f"Tool '{func_name}' failed with logic error: {error_msg}")
+                # Handle cases where tool returns success=False or isn't a dict
+                error_msg = "Unknown error"
+                if isinstance(result, dict):
+                    error_msg = result.get('message', 'Unknown error')
+                
+                logger.warning(f"Tool '{func_name}' failed: {error_msg}")
                 content = f"Error: {error_msg}"
 
             messages.append({
