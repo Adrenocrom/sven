@@ -22,14 +22,15 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
     
     # Construct context
     if len(messages) > 1:
+        messages = summarize_conversation(messages, system_prompt, model)
         # Instead of just summarizing everything, we use the memory manager to get core facts
-        core_facts = memory_manager.get_high_value_facts(limit=10)
-        fact_str = "\n".join([f"- {f.content}" for f in core_facts])
-        
-        # Inject core facts into a "Context" block or similar
-        # We'll modify the system prompt or add a special message to include these facts.
-        context_header = f"CORE FACTS:\n{fact_str}\n\n"
-        system_prompt = context_header + system_prompt
+        #core_facts = memory_manager.get_high_value_facts(limit=10)
+        #fact_str = "\n".join([f"- {f.content}" for f in core_facts])
+        #
+        ## Inject core facts into a "Context" block or similar
+        ## We'll modify the system prompt or add a special message to include these facts.
+        #context_header = f"CORE FACTS:\n{fact_str}\n\n"
+        #system_prompt = context_header + system_prompt
 
     messages.append({"role": "user", "content": user_text})
 

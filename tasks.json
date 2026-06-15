@@ -1,54 +1,62 @@
 [
   {
-    "id": "08486b97",
-    "description": "Improve Configuration Management: Move from a simple config.json to a more robust configuration system that supports environment variables and different profiles (e.g., \"dev\", \"prod\")."
+    "id": "7c56fe16",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "6335b60e",
-    "description": "Add Logging for Debugging: Implement a more detailed logging system that records tool inputs/outputs and LLM responses to a file."
+    "id": "7e12eab8",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "61576bc5",
-    "description": "Improve CLI Interface: Enhance the interactive_chat loop with better formatting (e.g., using rich for tables, colors, and progress bars) and support for \"streaming\" responses from Ollama."
+    "id": "6eb5454f",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "cd9a4d92",
-    "description": "Add Unit & Integration Tests: Create a test suite to verify that tool outputs are correctly parsed by core.py and that the conversation flow handles edge cases (like empty tool results or malformed JSON)."
+    "id": "6d10ff62",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "d2feb204",
-    "description": "Add Multi-Step Task Planning: Implement a \"Plan\" mode where Sven first outlines steps and then executes them one by one (using the task tools)."
+    "id": "d9c28fc2",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "c23becb1",
-    "description": "Implement move_file tool in src/sven/tools/edit.py"
+    "id": "b7d062b9",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "48c66b5e",
-    "description": "Implement rename_file tool in src/sven/tools/edit.py"
+    "id": "44a5011d",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "0d64adcb",
-    "description": "Implement append_to_file tool in src/sven/tools/edit.py"
+    "id": "d3850131",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "9a0c02db",
-    "description": "Implement Advanced Context Management: Refine context windowing and ranking for memory retrieval."
+    "id": "7670593d",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "9e827769",
-    "description": "Implement Multi-Turn Tool Error Recovery: Add logic for the model to retry or correct its approach when a tool returns an error."
+    "id": "8029fd83",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "acba4e32",
-    "description": "Implement Dynamic System Prompting: Adjust system instructions based on detected task type."
+    "id": "2441e6a5",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "d404686e",
-    "description": "Refine the websearch tool to use a more robust method (like `duckduckgo-search` library or a direct API) if possible, but first ensure it handles common cases well."
+    "id": "e76248b8",
+    "description": "Investigate token overflow in core and memory system."
   },
   {
-    "id": "6d50ad46",
-    "description": "Create a configuration management module that supports environment variables and profiles (dev, prod)."
+    "id": "957dec7f",
+    "description": "Investigate token overflow in core and memory system."
+  },
+  {
+    "id": "8f83058e",
+    "description": "Investigate token overflow in core and memory system."
+  },
+  {
+    "id": "fdd173e4",
+    "description": "Investigate token overflow in core and memory system."
   }
 ]
