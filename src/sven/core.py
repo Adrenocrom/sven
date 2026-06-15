@@ -6,12 +6,31 @@ import logging
 # Setup a standard logger
 logger = logging.getLogger(__name__)
 
+from .memory_manager import MemoryManager
+
+# Global memory manager instance (could be moved to a config or state object later)
+memory_manager = MemoryManager()
+
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
 def send(user_text: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
+    # Extract facts from the new user input before processing
+    memory_manager.add_fact(user_text)
+    memory_manager.update_scores()
+
     tools = list(available_functions.values())
+    
+    # Construct context
     if len(messages) > 1:
-        messages = summarize_conversation(messages, system_prompt, model) # Note: you might need to pass 'model' if it varies
+        # Instead of just summarizing everything, we use the memory manager to get core facts
+        core_facts = memory_manager.get_high_value_facts(limit=10)
+        fact_str = "\n".join([f"- {f.content}" for f in core_facts])
+        
+        # Inject core facts into a "Context" block or similar
+        # We'll modify the system prompt or add a special message to include these facts.
+        context_header = f"CORE FACTS:\n{fact_str}\n\n"
+        system_prompt = context_header + system_prompt
+
     messages.append({"role": "user", "content": user_text})
 
     while True:
@@ -25,11 +44,11 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
         print(f"Prompt tokens: {response.get('prompt_eval_count')}")
         print(f"Output tokens: {response.get('eval_count')}")
         if response.message.thinking is not None:
-            print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
+            print(f"Thinking: {response.message.thinking}")
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
-            print(f"\x1b[31mSven\033[0m: {response.message.content}")
+            print(f"{response.message.content}")
             break
 
 def summarize_conversation(messages: list, system_prompt: str, model: str) -> list:
