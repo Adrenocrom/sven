@@ -3,6 +3,16 @@ from typing import Dict, List, Optional
 from ollama import chat, Options
 import logging
 
+from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
+
+task_functions = {
+  'add_task': add_task,
+  'current_task': current_task,
+  'list_tasks': list_tasks,
+  'cancel_task': cancel_task,
+  'complete_task': complete_task,
+}
+
 # Setup a standard logger
 logger = logging.getLogger(__name__)
 
@@ -10,6 +20,7 @@ writing_tools = ['replacefile', 'replaceline', 'touch']
 
 def send(user_text: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
     tools = list(available_functions.values())
+
     messages.append({"role": "user", "content": user_text})
 
     while True:
@@ -40,6 +51,8 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     Analyzes the conversation context and a provided list of available capabilities 
     to generate a specialized System Prompt for the next stage.
     """
+    task_tools = list(task_functions.values())
+
     # Filter out existing system prompts from the history to keep focus on user/assistant interaction
     summary_context = [m for m in messages if m["role"] != "system"]
 
@@ -86,18 +99,22 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     - OUTPUT ONLY the State & Data Payload.
     """
 
-    response = chat(
-        model=model,
-        messages=[
+    history = [
             {"role": "system", "content": meta_instruction},
             *summary_context
-        ],
-    )
-
-    return [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": response.message.content}
-    ]
+        ]
+    while True:
+        response = chat(
+            model=model,
+            tools=task_tools,
+            messages=history
+        )
+        history = process_tool_calls(response.message, available_functions, messages)
+        if not response.message.tool_calls:
+            return [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": response.message.content}
+            ]
 
 def summarize_conversation(
         messages: list, 
