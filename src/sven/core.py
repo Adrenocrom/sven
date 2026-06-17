@@ -117,11 +117,6 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     #   4. Validation Status
     #   5. Next Step Logic
     #
-    # Example Next‑Step Logic entry (after replacement):
-    #
-    #     add_task("search_product", {"product_name": "Wireless Earbuds",
-    #                                "category_id": "<raw_data.category_id>"})
-    #
     # If no further action is required:
     #
     #     complete_task()
