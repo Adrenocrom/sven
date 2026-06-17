@@ -136,7 +136,7 @@ def summarize_conversation(
         messages: list, 
         system_prompt: str, 
         model: str, 
-        keep_recent_count: int = 5  # New parameter
+        keep_recent_count: int = 3  # New parameter
         ) -> list:
     """
     Summarize the conversation history when it exceeds a certain limit, keep the goal and nessary informations.
@@ -150,7 +150,7 @@ def summarize_conversation(
     old_context = without_system[:-keep_recent_count]
     new_context = without_system[-keep_recent_count:]
 
-    pprint.pprint(*old_context)
+    print(old_context)
     # 3. Perform the summarization only on the older context
     summary_response = chat(
             model=model,
