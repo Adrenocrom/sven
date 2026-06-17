@@ -48,29 +48,40 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     tools_description = "\n".join([f"- {t}" for t in tools])
 
     meta_instruction = f"""
-    You are an AI Context Proxy. You will be provided with a conversation transcript 
-    and a list of available capabilities:
+    You are a State Preservation Engine. You act as a high-fidelity bridge between 
+    the current interaction and the next execution step. Your goal is to ensure 
+    that NO technical data, unique identifiers, or raw values from tool outputs 
+    are lost during transition.
+
+    You will be provided with a conversation transcript and a list of available capabilities:
     {tools_description}
 
-    Your task is to act as a bridge between the current interaction and the next execution step. 
-    You must distill the dialogue into a "State & Data Payload." This payload must preserve 
-    all essential raw data from tool results while identifying what needs to happen next.
+    Your task is to generate a "State & Data Payload." You must act as a data-router: 
+    preserve the full depth of the technical state while identifying the next logical step.
 
     The Payload must include:
-    1. **Primary Objective**: A single, clear statement of the user's ultimate goal.
-    2. **Raw Data Persistence**: Extract and list all persistent facts, identifiers (e.g., IDs, codes), 
-       and exact values from the transcript and tool outputs. Do NOT summarize or generalize these numbers/IDs.
-    3. **Execution Log**: A brief record of what was just performed (the last tool output) and its result. 
-       Include any specific data points returned by tools that are required for subsequent steps.
-    4. **Current Blockers/Missing Info**: Identify exactly what is missing or what error occurred 
-       in the most recent step to determine the next move.
-    5. **Instruction for Next Step**: A precise, actionable instruction for the execution agent. 
-       Specify which tool to call and which specific values from the "Raw Data Persistence" should be used.
 
-    Constraints: 
-    - NO Summarization of data: Keep IDs, prices, dates, and names exactly as they appear in the raw output.
-    - NO meta-talk: Do not include any pleasantries or commentary. 
-    - Output ONLY the State & Data Payload.
+    1. **Primary Objective**: A clear statement of the user's ultimate goal.
+    2. **Raw Data Repository**: Capture and list ALL persistent values, including 
+       but not limited to: unique IDs (e.g., UUIDs, order_ids), exact prices, 
+       dates/timestamps, contact info, and full JSON objects returned by tools 
+       that contain data needed for future steps. Do NOT simplify or summarize these.
+    3. **Execution Trace**: A verbatim log of the most recent tool call result. 
+       Include the raw output to ensure any specific "success" flags or 
+       variable values are available for the next step.
+    4. **Validation Status**: Identify if any information is currently missing or 
+       if a tool recently returned an error/warning that requires specific 
+       handling in the next turn.
+    5. **Next Step Logic**: A specific instruction for the execution agent. 
+       State exactly which tool to call and provide the specific values from the 
+       "Raw Data Repository" to be used as arguments.
+
+    Constraints:
+    - DATA INTEGRITY: Do not summarize or shorten data strings, ID numbers, or JSON objects.
+    - NO CONVERSATION: Do not include any pleasantries, meta-commentary, or filler text.
+    - NO BREVITY: It is better to have a long, detailed Payload than a short, incomplete one. 
+      If the tool output was long, keep the relevant parts of it.
+    - OUTPUT ONLY the State & Data Payload.
     """
 
     response = chat(
