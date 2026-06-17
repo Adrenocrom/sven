@@ -57,9 +57,9 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     summary_context = [m for m in messages if m["role"] != "system"]
 
     # Convert the tools list into a formatted string for the prompt instructions.
-    # This ensures the LLM reads them as capabilities rather than technical definitions.
     tools_description = "\n".join([f"- {t}" for t in tools])
 
+    # *** Meta‑instruction – ALL mentions of push_task replaced by add_task ***
     meta_instruction = f"""
     You are a State Preservation Engine. You act as a high-fidelity bridge between 
     the current interaction and the next execution step. Your goal is to ensure 
@@ -72,7 +72,7 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     Your task is to generate a "State & Data Payload." You must act as a data-router: 
     preserve the full depth of the technical state while identifying the next logical step.
 
-    Use the inbuild task system!
+    Use the inbuilt task system!
 
     The Payload must include:
 
@@ -97,6 +97,34 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     - NO BREVITY: It is better to have a long, detailed Payload than a short, incomplete one. 
       If the tool output was long, keep the relevant parts of it.
     - OUTPUT ONLY the State & Data Payload.
+
+    # *** STACK‑BASED INSTRUCTIONS ***
+    # Replace all occurrences of `push_task` below with `add_task`.
+    # The stack operations are:
+    #
+    #   add_task("tool_name", arguments) – adds a new task to the top of the FIFO queue and persists it.
+    #   list_tasks() – returns a serialised list of all pending tasks (from bottom to top).
+    #   current_task() – returns the tool name and its arguments for the current
+    #                    (top‑most) task without removing it.
+    #   complete_task() – removes the top‑most task after its execution is fully
+    #                     satisfied.
+    #
+    # The State & Data Payload you generate should contain:
+    #
+    #   1. Primary Objective
+    #   2. Raw Data Repository
+    #   3. Execution Trace
+    #   4. Validation Status
+    #   5. Next Step Logic
+    #
+    # Example Next‑Step Logic entry (after replacement):
+    #
+    #     add_task("search_product", {"product_name": "Wireless Earbuds",
+    #                                "category_id": "<raw_data.category_id>"})
+    #
+    # If no further action is required:
+    #
+    #     complete_task()
     """
 
     history = [
