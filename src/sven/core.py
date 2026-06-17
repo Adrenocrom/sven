@@ -137,7 +137,7 @@ def summarize_conversation(
         messages: list, 
         system_prompt: str, 
         model: str, 
-        keep_recent_count: int = 3  # New parameter
+        keep_recent_count: int = 2  # New parameter
         ) -> list:
     """
     Summarize the conversation history when it exceeds a certain limit, keep the goal and nessary informations.
@@ -165,7 +165,7 @@ def summarize_conversation(
     # [System Prompt] + [Summary Result] + [Raw Recent Messages]
     final_history = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Summary of previous conversation: {summary_response.message.content}"}
+            {"role": "user", "content": summary_response.message.content}
             ]
 
     # Add the messages that were supposed to stay untouched (skipping any systemic ones)
