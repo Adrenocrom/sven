@@ -1,54 +1,54 @@
-# src/sven/task.py
+"""
+Module defining the Task data structure and logic for handling tasks.
+"""
+
 import json
-import readline
-from typing import List, Dict, Any
-from ollama import chat, Options
+from typing import List
+from dataclasses import dataclass, asdict
 
-from sven.tools.getdatetime import getdatetime
-from sven.tools.websearch import websearch
-from sven.tools.webfetch import webfetch
-from sven.tools.manpage import manpage
-from sven.tools.touch import touch
-from sven.tools.listfiles import listfiles
-from sven.tools.read import read
-from sven.tools.edit import searchandreplace
-from sven.tools.edit import replacefile
-from sven.tools.edit import replaceline
-from sven.tools.python import compilefiles
+@dataclass
+class Task:
+    id: str
+    description: str
+    success_defintion: str
+    state: str
+    plan: str
+    raw_data: str
 
-from sven.core import process_tool_calls
-from sven.core import send
+    def to_dict(self) -> dict:
+        return asdict(self)
 
-all_available_functions: Dict[str, Any] = {
-  'getdatetime': getdatetime,
-  'websearch': websearch,
-  'webfetch': webfetch,
-  'manpage': manpage,
-  'read': read,
-  'touch': touch,
-  'listfiles': listfiles,
-  'searchandreplace': searchandreplace,
-  'replacefile': replacefile,
-  'replaceline': replaceline,
-  'compilefiles': compilefiles,
-}
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Task':
+        return cls(id=data['id'], success_defintion = data['success_defintion'], state=data['state'], description=data['description'], plan=data['plan'], raw_data=data['raw_data'])
 
-# Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
-def run_prompt_sequence(
-    prompts: List[str],
-    model: str,
-    options: Options | None = None,
-    available_functions: Dict[str, Any] = all_available_functions,
-    system_prompt: str = "You are Sven! You search for files if you are not shure. And you persist the changes by yourself. Dont ask the user to do it for you.",
-) -> None:
-    if options is None:
-        options = Options(temperature=0.1)
+def load_tasks_from_json(filepath: str) -> List[Task]:
+    """
+    Loads a list of Task objects from a JSON file.
+    
+    Args:
+        filepath: Path to the JSON file.
+        
+    Returns:
+        A list of Task instances.
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return [Task.from_dict(item) for item in data]
+            else:
+                raise ValueError("JSON content must be a list of tasks.")
+    except FileNotFoundError:
+        print(f"Error: File {filepath} not found.")
+        return []
+    except Exception as e:
+        print(f"Error loading tasks from {filepath}: {e}")
+        return []
 
-    messages = [{"role": "system", "content": system_prompt}]
-    size = len(prompts)
-    count = 1
-    for prompt in prompts:
-        print(f"Running {count} of up to {size} prompts...")
-        count+=1
-
-        send(prompt, messages, system_prompt, model, available_functions)
+def save_tasks_to_json(tasks: List[Task], filepath: str) -> None:
+    """
+    Saves a list of Task objects to a JSON file.
+    """
+    with open(filepath, 'w', encoding='utf-8') as f:
+        json.dump([t.to_dict() for t in tasks], f, indent=2)

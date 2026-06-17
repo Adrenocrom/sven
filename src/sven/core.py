@@ -59,6 +59,8 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     Your task is to generate a "State & Data Payload." You must act as a data-router: 
     preserve the full depth of the technical state while identifying the next logical step.
 
+    Use the inbuild task system!
+
     The Payload must include:
 
     1. **Primary Objective**: A clear statement of the user's ultimate goal.

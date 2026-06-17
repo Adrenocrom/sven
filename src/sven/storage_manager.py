@@ -8,14 +8,7 @@ logger = logging.getLogger(__name__)
 
 STATE_FILE = "state.json"
 
-DEFAULT_STATE = {
-    "user_settings": {
-        "theme": "dark",
-        "notifications": True
-    },
-    "current_progress": 0,
-    "session_tokens": {}
-}
+DEFAULT_STATE = { }
 
 def load_session():
     """
@@ -44,11 +37,3 @@ def save_session(data):
         logger.info(f"Session successfully saved to {STATE_FILE}.")
     except IOError as e:
         logger.error(f"Failed to save session to {STATE_FILE}: {e}")
-
-if __name__ == "__main__":
-    # Simple test
-    state = load_session()
-    print("Loaded state:", state)
-    state["current_progress"] = 50
-    save_session(state)
-    print("Saved state.")

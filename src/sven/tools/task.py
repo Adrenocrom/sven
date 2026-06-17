@@ -17,19 +17,23 @@ def _initialize_queue() -> deque:
 # A global queue to store tasks, initialized from the persistent storage.
 TASK_QUEUE = _initialize_queue()
 
-def add_task(description: str) -> dict:
+def add_task(description: str, success_defintion: str, state: str, plan: str, raw_data: str) -> dict:
     """
     Adds a new task with a generated ID to the FIFO queue and persists it.
     
     Args:
         description: A description of the task.
+        success_defintion: : The condition that needs to be met for the task to succeed.
+        state: The initial state of the task.
+        plan: The steps needed to execute the task successfully.
+        raw_data: Raw data associated with the task.
         
     Returns:
         A dictionary containing success status, message, and the new task ID.
     """
     import uuid
     task_id = str(uuid.uuid4())[:8]
-    new_task = Task(id=task_id, description=description)
+    new_task = Task(id=task_id, description=description, success_defintion=success_defintion, state=state, plan=plan, raw_data=raw_data)
     TASK_QUEUE.append(new_task)
     save_tasks_to_json(list(TASK_QUEUE), TASK_FILE)
     return {"success": True, "message": "OK", "data": task_id}
