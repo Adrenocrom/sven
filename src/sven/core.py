@@ -1,3 +1,4 @@
+import json
 import pprint
 from typing import Dict, List, Optional
 from ollama import chat, Options
@@ -21,7 +22,8 @@ def send(user_prompt: str, messages: list, system_prompt: str, model: str, avail
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_prompt})
     while True:
-        messages = summarize_conversation(system_prompt, user_prompt, messages,model)
+        if(len(messages) > 10):
+            messages = summarize_conversation(system_prompt, user_prompt, messages,model)
         stream = chat(
             model=model,
             messages=messages,
@@ -33,125 +35,41 @@ def send(user_prompt: str, messages: list, system_prompt: str, model: str, avail
         print("\x1b[33m")
         thinking = True
         tool_calls=None
-        for chunk in stream:
-            if chunk.message.thinking is None and thinking:
-                print("\x1b[21m\n      \x1b[0m\n")
-                thinking = False
-            if chunk.message.thinking is not None:
-                print(chunk.message.thinking, end="", flush=True)
-            if chunk.message.content is not None:
-                content += chunk.message.content
-                print(chunk.message.content, end="", flush=True)
-            if chunk.message.tool_calls is not None:
-                tool_calls = chunk.message.tool_calls
-            if chunk.done:
-                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
-                response = chunk
-                break;
+        try:
+            for chunk in stream:
+                if chunk.message.thinking is None and thinking:
+                    print("\x1b[21m\n      \x1b[0m\n")
+                    thinking = False
+                if chunk.message.thinking is not None:
+                    print(chunk.message.thinking, end="", flush=True)
+                if chunk.message.content is not None:
+                    content += chunk.message.content
+                    print(chunk.message.content, end="", flush=True)
+                if chunk.message.tool_calls is not None:
+                    tool_calls = chunk.message.tool_calls
+                if chunk.done:
+                    print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
+                    response = chunk
+                    break;
+        except Exception as e:
+            print(f"\n\x1b[1min Error: {e}\x1b[0m")
+            break;
+
         response.message.content = content
         response.message.tool_calls = tool_calls
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
+            with open('history.json', 'w') as f:
+                json.dump(messages, f, indent=4)
             break
-
-def generate_mission_brief(messages: list, tools: list, system_prompt: str, model: str) -> list:
-    """
-    Analyzes the conversation context and a provided list of available capabilities 
-    to generate a specialized System Prompt for the next stage.
-    """
-    task_tools = list(task_functions.values())
-
-    # Filter out existing system prompts from the history to keep focus on user/assistant interaction
-    summary_context = [m for m in messages if m["role"] != "system"]
-
-    # Convert the tools list into a formatted string for the prompt instructions.
-    tools_description = "\n".join([f"- {t}" for t in tools])
-
-    # *** Meta‑instruction – ALL mentions of push_task replaced by add_task ***
-    meta_instruction = f"""
-    You are a State Preservation Engine. You act as a high-fidelity bridge between 
-    the current interaction and the next execution step. Your goal is to ensure 
-    that NO technical data, unique identifiers, or raw values from tool outputs 
-    are lost during transition.
-
-    You will be provided with a conversation transcript and a list of available capabilities:
-    {tools_description}
-
-    Your task is to generate a "State & Data Payload." You must act as a data-router: 
-    preserve the full depth of the technical state while identifying the next logical step.
-
-    Use the inbuilt task system!
-
-    The Payload must include:
-
-    1. **Primary Objective**: A clear statement of the user's ultimate goal.
-    2. **Raw Data Repository**: Capture and list ALL persistent values, including 
-       but not limited to: unique IDs (e.g., UUIDs, order_ids), exact prices, 
-       dates/timestamps, contact info, and full JSON objects returned by tools 
-       that contain data needed for future steps. Do NOT simplify or summarize these.
-    3. **Execution Trace**: A verbatim log of the most recent tool call result. 
-       Include the raw output to ensure any specific "success" flags or 
-       variable values are available for the next step.
-    4. **Validation Status**: Identify if any information is currently missing or 
-       if a tool recently returned an error/warning that requires specific 
-       handling in the next turn.
-    5. **Next Step Logic**: A specific instruction for the execution agent. 
-       State exactly which tool to call and provide the specific values from the 
-       "Raw Data Repository" to be used as arguments.
-
-    Constraints:
-    - DATA INTEGRITY: Do not summarize or shorten data strings, ID numbers, or JSON objects.
-    - NO CONVERSATION: Do not include any pleasantries, meta-commentary, or filler text.
-    - NO BREVITY: It is better to have a long, detailed Payload than a short, incomplete one. 
-      If the tool output was long, keep the relevant parts of it.
-    - OUTPUT ONLY the State & Data Payload.
-
-    # *** STACK‑BASED INSTRUCTIONS ***
-    # Replace all occurrences of `push_task` below with `add_task`.
-    # The stack operations are:
-    #
-    #   add_task("tool_name", arguments) – adds a new task to the top of the FIFO queue and persists it.
-    #   list_tasks() – returns a serialised list of all pending tasks (from bottom to top).
-    #   complete_task() – removes the top‑most task after its execution is fully
-    #                     satisfied.
-    #
-    # The State & Data Payload you generate should contain:
-    #
-    #   1. Primary Objective
-    #   2. Raw Data Repository
-    #   3. Execution Trace
-    #   4. Validation Status
-    #   5. Next Step Logic
-    #
-    # If no further action is required:
-    #
-    #     complete_task()
-    """
-
-    history = [
-            {"role": "system", "content": meta_instruction},
-            *summary_context
-        ]
-    while True:
-        response = chat(
-            model=model,
-            tools=task_tools,
-            messages=history
-        )
-        history = process_tool_calls(response.message, task_functions, messages)
-        if not response.message.tool_calls:
-            return [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": response.message.content}
-            ]
 
 def summarize_conversation(
         system_prompt: str, 
         user_prompt: str,
         messages: list, 
         model: str, 
-        keep_recent_count: int = 2  # New parameter
+        keep_recent_count: int = 4  # New parameter
         ) -> list:
     """
     "Summarize the following conversation into a concise, fact-heavy paragraph. "
@@ -178,16 +96,20 @@ def summarize_conversation(
             stream=True)
     print("\x1b[31m")
     final_summary = ""
-    for chunk in stream:
-        if chunk.message.thinking is not None:
-            print(chunk.message.thinking, end="", flush=True)
-        if chunk.message.content is not None:
-            final_summary += chunk.message.content
-            print(chunk.message.content, end="", flush=True)
-        if chunk.done:
-            print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
-            break;
-    print("\x1b[0m")
+    try:
+        for chunk in stream:
+            if chunk.message.thinking is not None:
+                print(chunk.message.thinking, end="", flush=True)
+            if chunk.message.content is not None:
+                final_summary += chunk.message.content
+                print(chunk.message.content, end="", flush=True)
+            if chunk.done:
+                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
+                break;
+        print("\x1b[0m")
+    except Exception as e:
+        print(f"\n\x1b[0m\x1b[1min Error: {e}\x1b[0m")
+        break;
     final_history = [
             {"role": "system", "content": system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
