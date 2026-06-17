@@ -82,8 +82,8 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     )
 
     return [
-        #{"role": "system", "content": system_prompt},
-        {"role": "system", "content": response.message.content}
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": response.message.content}
     ]
 
 def summarize_conversation(
