@@ -147,10 +147,9 @@ def summarize_conversation(
     The last `keep_recent_count` messages will remain untouched and be appended 
     directly after the summary, while older messages are condensed.
     """
-    print(f"number of messages: \x1b[34m{len(messages)}, {keep_recent_count}\x1b[0m\n");
-
     without_system = [m for m in messages if m["role"] != "system"]
 
+    print(f"number of messages: \x1b[34m{len(without_system)}, {keep_recent_count}\x1b[0m\n");
     if len(without_system) < keep_recent_count:
         return messages;
 
