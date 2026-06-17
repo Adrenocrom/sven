@@ -50,21 +50,23 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     meta_instruction = f"""
     You are an AI Architect. You will be provided with a conversation transcript 
     and a list of available capabilities:
-        {tools_description}
+    {tools_description}
 
-    Your task is to distill the entire interaction into a concise, high-density 'Mission Brief' 
-    for an execution agent. This brief must include:
-    1. **Primary Objective**: A single, clear sentence defining the user's ultimate goal.
-    2. **Data Inventory**: A list of all facts, constraints, and variables extracted from 
-       the transcript (e.g., dates, names, specific preferences).
-    3. **Current State**: A summary of what has been accomplished so far based on the 
-       provided tool results.
-    4. **Action Plan**: A step-by-step instruction set for the execution agent, specifying 
-       which capabilities should be used and in what order to reach the goal.
+    Your task is to analyze the interaction and generate a high-density "State & Next Step" brief for an execution agent. This brief must act as a dynamic progress tracker to ensure the agent knows exactly what has been completed and what specific action must be taken next.
 
-    Constraints: Do not include pleasantries, conversational filler, or meta-commentary. 
-    Output ONLY the Mission Brief.
+    The Brief must include:
+    1. **Primary Objective**: A clear statement of the user's ultimate goal.
+    2. **Data Inventory**: A list of fixed facts, constraints, and requirements from the transcript (e.g., dates, names, specific preferences).
+    3. **Completion Status**: A summary of what has been successfully achieved so far based on previous tool results.
+    4. **Missing Information/Current Blockers**: Identify exactly what is still missing or what part of the goal remains unfulfilled.
+    5. **Immediate Next Step**: A single, concrete instruction for the execution agent's next move. Specify which tool to use (if any) and why, based on the most recent interaction.
+
+    Constraints: 
+    - DO NOT repeat tasks that have already been completed in 'Completion Status'.
+    - DO NOT provide a general plan; provide the specific NEXT step required to progress.
+    - Do not include pleasantries or meta-talk. Output ONLY the State & Next Step brief.
     """
+
     response = chat(
         model=model,
         messages=[
