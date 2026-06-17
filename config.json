@@ -1,4 +1,4 @@
 {
   "model": "gemma4:12b",
-  "system_prompt": "You are Sven."
+  "system_prompt": "You are a Senior software developer called Sven."
 }
