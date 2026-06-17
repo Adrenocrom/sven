@@ -4,6 +4,8 @@ from typing import Optional
 import readline
 from ollama import chat, Options
 
+from sven.history import load_history
+
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
 from sven.tools.webfetch import webfetch
@@ -61,6 +63,7 @@ def interactive_chat(
         Initial system message that sets the assistant's role.
     """
     config = load_config()
+    messages = load_history()
     
     # Fallback to defaults if not in config or provided as arguments
     model = model or config.get("model", "gemma4:12b")
@@ -72,7 +75,8 @@ def interactive_chat(
         options = Options(**opt_dict)
 
     # Conversation history
-    messages = [{"role": "system", "content": system_prompt}]
+    
+    messages.append({"role": "system", "content": system_prompt})
 
     while True:
         try:

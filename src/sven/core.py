@@ -5,6 +5,7 @@ from ollama import chat, Options
 import logging
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
+from sven.history import store_history
 
 task_functions = {
   'add_task': add_task,
@@ -60,8 +61,7 @@ def send(user_prompt: str, messages: list, system_prompt: str, model: str, avail
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
-            with open('history.json', 'w') as f:
-                json.dump(messages, f, indent=4)
+            store_history(messages)
             break
 
 def summarize_conversation(
@@ -109,7 +109,7 @@ def summarize_conversation(
         print("\x1b[0m")
     except Exception as e:
         print(f"\n\x1b[0m\x1b[1min Error: {e}\x1b[0m")
-        break;
+        return [];
     final_history = [
             {"role": "system", "content": system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
