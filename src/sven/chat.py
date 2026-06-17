@@ -85,3 +85,6 @@ def interactive_chat(
             continue  # ignore empty lines
 
         send(user_text, messages, system_prompt, model, available_functions, options)
+
+if __name__ == "__name__":
+    interactive_chat()

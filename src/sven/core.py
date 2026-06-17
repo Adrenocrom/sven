@@ -15,26 +15,22 @@ writing_tools = ['replacefile', 'replaceline', 'touch']
 
 def send(user_text: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
     # Extract facts from the new user input before processing
-    memory_manager.add_fact(user_text)
-    memory_manager.update_scores()
-
+    #memory_manager.add_fact(user_text)
+    #memory_manager.update_scores()
     tools = list(available_functions.values())
     
-    # Construct context
+    # this function musst be reworked, its main compont.
     if len(messages) > 1:
         messages = summarize_conversation(messages, system_prompt, model)
-        # Instead of just summarizing everything, we use the memory manager to get core facts
-        #core_facts = memory_manager.get_high_value_facts(limit=10)
-        #fact_str = "\n".join([f"- {f.content}" for f in core_facts])
-        #
-        ## Inject core facts into a "Context" block or similar
-        ## We'll modify the system prompt or add a special message to include these facts.
-        #context_header = f"CORE FACTS:\n{fact_str}\n\n"
-        #system_prompt = context_header + system_prompt
-
     messages.append({"role": "user", "content": user_text})
 
     while True:
+        # Construct context
+        # will be the most importand change!
+        #if len(messages) > 1:
+        #    messages = summarize_conversation(messages, system_prompt, model)
+        #messages.append({"role": "user", "content": user_text})
+
         response: ChatResponse = chat(
             model=model,
             messages=messages,
