@@ -24,6 +24,7 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
 
     while True:
         messages = summarize_conversation(messages, system_prompt, model)
+        print("start thinking")
         response: ChatResponse = chat(
             model=model,
             messages=messages,
@@ -142,6 +143,7 @@ def summarize_conversation(
     Summarize the conversation history when it exceeds a certain limit, keep the goal and nessary informations.
     The last `keep_recent_count` messages will remain untouched and be appended 
     directly after the summary, while older messages are condensed.
+    Try to descibe the next steps.
     """
     without_system = [m for m in messages if m["role"] != "system"]
     if len(without_system) <= keep_recent_count:
@@ -150,7 +152,6 @@ def summarize_conversation(
     old_context = without_system[:-keep_recent_count]
     new_context = without_system[-keep_recent_count:]
 
-    print(old_context)
     # 3. Perform the summarization only on the older context
     summary_response = chat(
             model=model,
@@ -164,16 +165,13 @@ def summarize_conversation(
     # [System Prompt] + [Summary Result] + [Raw Recent Messages]
     final_history = [
             {"role": "system", "content": system_prompt},
-            {"role": "assistant", "content": f"Summary of previous conversation: {summary_response.message.content}"}
+            {"role": "user", "content": f"Summary of previous conversation: {summary_response.message.content}"}
             ]
 
     # Add the messages that were supposed to stay untouched (skipping any systemic ones)
     for m in new_context:
         if m["role"] != "system":
             final_history.append(m)
-
-    print("\x1b[33m-------\x1b[0m")
-    pprint.pprint(final_history)
     return final_history
 
 def process_tool_calls(
