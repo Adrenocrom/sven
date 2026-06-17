@@ -23,23 +23,40 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
     messages.append({"role": "user", "content": user_text})
 
     while True:
-        messages = summarize_conversation(messages, system_prompt, model)
-        print("start thinking")
-        response: ChatResponse = chat(
+        stream = chat(
             model=model,
             messages=messages,
             tools=tools,
-            options=options
+            options=options,
+            stream=True,
         )
-        latest_prompt_eval_count = response.get('prompt_eval_count')
-        print(f"Prompt tokens: {response.get('prompt_eval_count')}")
-        print(f"Output tokens: {response.get('eval_count')}")
-        if response.message.thinking is not None:
-            print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
+        content = ""
+        print("\x1b[33m")
+        thinking = True
+        tool_calls=None
+        for chunk in stream:
+            if chunk.message.thinking is None and thinking:
+                print("\x1b[21m\n      \x1b[0m\n")
+                thinking = False
+            if chunk.message.thinking is not None:
+                print(chunk.message.thinking, end="", flush=True)
+            if chunk.message.content is not None:
+                content += chunk.message.content
+                print(chunk.message.content, end="", flush=True)
+            if chunk.message.tool_calls is not None:
+                tool_calls = chunk.message.tool_calls
+            if chunk.done:
+                response = chunk
+                break;
+        response.message.content = content
+        response.message.tool_calls = tool_calls
         messages = process_tool_calls(response.message, available_functions, messages)
 
+        print(f"\n\x1b[1min {response.get('prompt_eval_count')} out {response.get('eval_count')}\x1b[0m")
+
+        messages = summarize_conversation(messages, system_prompt, model)
+
         if not response.message.tool_calls:
-            print(f"{response.message.content}")
             break
 
 def generate_mission_brief(messages: list, tools: list, system_prompt: str, model: str) -> list:
@@ -205,6 +222,7 @@ def process_tool_calls(
 
     for tc in response_message.tool_calls:
         func_name = tc.function.name
+        print(f"Calling tool: {func_name}")
         if func_name not in available_functions:
             logger.error(f"Tool '{func_name}' is not available.")
             continue
