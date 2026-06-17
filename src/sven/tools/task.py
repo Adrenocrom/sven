@@ -22,11 +22,11 @@ def add_task(description: str, success_defintion: str, state: str, plan: str, ra
     Adds a new task with a generated ID to the FIFO queue and persists it.
     
     Args:
-        description: A description of the task.
-        success_defintion: : The condition that needs to be met for the task to succeed.
-        state: The initial state of the task.
-        plan: The steps needed to execute the task successfully.
-        raw_data: Raw data associated with the task.
+        str: description - A description of the task.
+        str: success_defintion - The condition that needs to be met for the task to succeed.
+        str: state - The initial state of the task.
+        str: plan - The steps needed to execute the task successfully.
+        str: raw_data - Raw data associated with the task.
         
     Returns:
         A dictionary containing success status, message, and the new task ID.
