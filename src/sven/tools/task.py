@@ -26,7 +26,7 @@ def add_task(description: str, success_defintion: str, state: str, plan: str, ra
         str: success_defintion - The condition that needs to be met for the task to succeed.
         str: state - The initial state of the task.
         str: plan - The steps needed to execute the task successfully.
-        str: raw_data - Raw data associated with the task.
+        str: raw_data - Raw data (tool results) associated with the task.
         
     Returns:
         A dictionary containing success status, message, and the new task ID.
