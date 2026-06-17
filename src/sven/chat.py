@@ -76,15 +76,15 @@ def interactive_chat(
 
     while True:
         try:
-            user_text = input("\n\x1b[34mUser\x1b[0m: ")
+            user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
         except EOFError:  # Ctrl‑D (Unix) / Ctrl‑Z (Windows)
             print("\n[Conversation ended]")
             break
 
-        if not user_text.strip():
+        if not user_prompt.strip():
             continue  # ignore empty lines
 
-        send(user_text, messages, system_prompt, model, available_functions, options)
+        send(user_prompt, messages, system_prompt, model, available_functions, options)
 
 if __name__ == "__name__":
     interactive_chat()

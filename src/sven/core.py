@@ -17,12 +17,11 @@ logger = logging.getLogger(__name__)
 
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
-def send(user_text: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
+def send(user_prompt: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
     tools = list(available_functions.values())
-
-    messages.append({"role": "user", "content": user_text})
-
+    messages.append({"role": "user", "content": user_prompt})
     while True:
+        messages = summarize_conversation(system_prompt, user_prompt, messages,model)
         stream = chat(
             model=model,
             messages=messages,
@@ -46,15 +45,12 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
             if chunk.message.tool_calls is not None:
                 tool_calls = chunk.message.tool_calls
             if chunk.done:
+                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
                 response = chunk
                 break;
         response.message.content = content
         response.message.tool_calls = tool_calls
         messages = process_tool_calls(response.message, available_functions, messages)
-
-        print(f"\n\x1b[1min {response.get('prompt_eval_count')} out {response.get('eval_count')}\x1b[0m")
-
-        messages = summarize_conversation(messages, system_prompt, model)
 
         if not response.message.tool_calls:
             break
@@ -151,16 +147,16 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
             ]
 
 def summarize_conversation(
-        messages: list, 
         system_prompt: str, 
+        user_prompt: str,
+        messages: list, 
         model: str, 
         keep_recent_count: int = 2  # New parameter
         ) -> list:
     """
-    Summarize the conversation history when it exceeds a certain limit, keep the goal and nessary informations.
-    The last `keep_recent_count` messages will remain untouched and be appended 
-    directly after the summary, while older messages are condensed.
-    Try to descibe the next steps.
+    "Summarize the following conversation into a concise, fact-heavy paragraph. "
+    "Focus exclusively on user preferences, established facts, current goals, and key decisions. "
+    "Omit all conversational filler, pleasantries, and internal system instructions."
     """
     without_system = [m for m in messages if m["role"] != "system"]
     if len(without_system) <= keep_recent_count:
@@ -169,20 +165,33 @@ def summarize_conversation(
     old_context = without_system[:-keep_recent_count]
     new_context = without_system[-keep_recent_count:]
 
-    # 3. Perform the summarization only on the older context
-    summary_response = chat(
+    stream = chat(
             model=model,
             messages=[
-                {"role": "system", "content": "Summarize the following conversation briefly while retaining all key information and context. Do not include system instructions or persona details."},
+                {"role": "system", "content":
+                 "Summarize the following conversation into a concise, fact-heavy paragraph. "
+                 "Focus exclusively on user preferences, established facts, current goals, and key decisions. "
+                 "Omit all conversational filler, pleasantries, and internal system instructions."
+                 },
                 *old_context
                 ],
-            )
-
-    # 4. Construct the final list:
-    # [System Prompt] + [Summary Result] + [Raw Recent Messages]
+            stream=True)
+    print("\x1b[31m")
+    final_summary = ""
+    for chunk in stream:
+        if chunk.message.thinking is not None:
+            print(chunk.message.thinking, end="", flush=True)
+        if chunk.message.content is not None:
+            final_summary += chunk.message.content
+            print(chunk.message.content, end="", flush=True)
+        if chunk.done:
+            print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
+            break;
+    print("\x1b[0m")
     final_history = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": summary_response.message.content}
+            {"role": "assistant", "content": f"history summary: {final_summary}"},
+            {"role": "user", "content": user_prompt}
             ]
 
     # Add the messages that were supposed to stay untouched (skipping any systemic ones)
@@ -192,35 +201,34 @@ def summarize_conversation(
     return final_history
 
 def process_tool_calls(
-        response_message, 
+        message, 
         available_functions: Dict[str, any], 
-        messages: list
+        history: list
         ) -> list:
     """
     Process tool calls from a model response.
 
     Args:
-        response_message: The message object returned by the Ollama client.
+        message: The message object returned by the Ollama client.
         available_functions: A map of function names to actual python callables.
-        messages: The current conversation history (list of dicts).
+        history: The current conversation history (list of dicts).
 
     Returns:
         The updated message list after processing tool calls.
     """
-    if not response_message.tool_calls:
-        messages.append({
+    if not message.tool_calls:
+        history.append({
                 'role': 'assistant',
-                'content': response_message.content,
+                'content': message.content,
             })
-        return messages
+        return history
 
-    # Append the original model's response first
-    messages.append({
+    history.append({
             'role': 'assistant',
-            'tool_calls': response_message.tool_calls,
+            'tool_calls': message.tool_calls,
         })
 
-    for tc in response_message.tool_calls:
+    for tc in message.tool_calls:
         func_name = tc.function.name
         print(f"Calling tool: {func_name}")
         if func_name not in available_functions:
@@ -249,7 +257,7 @@ def process_tool_calls(
                 logger.warning(f"Tool '{func_name}' failed: {error_msg}")
                 content = f"Error: {error_msg}"
 
-            messages.append({
+            history.append({
                 "role": "tool", 
                 "tool_name": func_name, 
                 "content": str(content)
@@ -258,9 +266,9 @@ def process_tool_calls(
         except Exception as e:
             logger.exception(f"Exception occurred while handling tool '{func_name}': {str(e)}")
             content = f"Error: {str(e)}"
-            messages.append({
+            history.append({
                 "role": "tool", 
                 "tool_name": func_name, 
                 "content": str(content)
                 })
-    return messages
+    return history
