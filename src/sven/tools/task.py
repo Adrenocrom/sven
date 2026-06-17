@@ -4,7 +4,7 @@ Module providing tools for managing a task queue with persistence.
 
 from collections import deque
 from typing import Optional
-from sven.task_model import Task, load_tasks_from_json, save_tasks_to_json
+from sven.task import Task, load_tasks_from_json, save_tasks_to_json
 
 # Path to the file where tasks are persisted.
 TASK_FILE = "tasks.json"
