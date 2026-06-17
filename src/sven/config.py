@@ -25,7 +25,17 @@ def load_config(profile: str = "dev") -> Dict[str, Any]:
         with open(config_path, "r") as f:
             config = json.load(f)
     except FileNotFoundError:
-        config = {}
+        # Default configuration if file is missing
+        config = {
+            "model": "gemma4:12b",
+            "system_prompt": "You are a Senior software developer called Sven.",
+            "options": {
+                "temperature": 0.7
+            }
+        }
+        with open(config_path, "w") as f:
+            json.dump(config, f, indent=2)
+
 
     # If a profile is specified and exists in the config, we could potentially 
     # load specific settings for that profile. For now, let's just ensure 

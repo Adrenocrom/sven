@@ -23,7 +23,7 @@ def send(user_prompt: str, messages: list, system_prompt: str, model: str, avail
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_prompt})
     while True:
-        if(len(messages) > 10):
+        if(len(messages) > 20):
             messages = summarize_conversation(system_prompt, user_prompt, messages,model)
         stream = chat(
             model=model,
