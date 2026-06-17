@@ -24,6 +24,8 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
         # will be the most importand change!
         messages = summarize_conversation(messages, system_prompt, model)
 
+        pprint.pprint(f"\n[+] Context provided by assistant:\n{str(messages)}")
+
         response: ChatResponse = chat(
             model=model,
             messages=messages,
