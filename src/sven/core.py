@@ -18,7 +18,8 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
     #memory_manager.add_fact(user_text)
     #memory_manager.update_scores()
     tools = list(available_functions.values())
-    
+    messages.append({"role": "user", "content": user_text})
+
     while True:
         # Construct context
         # will be the most importand change!
