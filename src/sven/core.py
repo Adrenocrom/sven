@@ -48,23 +48,29 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     tools_description = "\n".join([f"- {t}" for t in tools])
 
     meta_instruction = f"""
-    You are an AI Architect. You will be provided with a conversation transcript 
+    You are an AI Context Proxy. You will be provided with a conversation transcript 
     and a list of available capabilities:
     {tools_description}
 
-    Your task is to analyze the interaction and generate a high-density "State & Next Step" brief for an execution agent. This brief must act as a dynamic progress tracker to ensure the agent knows exactly what has been completed and what specific action must be taken next.
+    Your task is to act as a bridge between the current interaction and the next execution step. 
+    You must distill the dialogue into a "State & Data Payload." This payload must preserve 
+    all essential raw data from tool results while identifying what needs to happen next.
 
-    The Brief must include:
-    1. **Primary Objective**: A clear statement of the user's ultimate goal.
-    2. **Data Inventory**: A list of fixed facts, constraints, and requirements from the transcript (e.g., dates, names, specific preferences).
-    3. **Completion Status**: A summary of what has been successfully achieved so far based on previous tool results.
-    4. **Missing Information/Current Blockers**: Identify exactly what is still missing or what part of the goal remains unfulfilled.
-    5. **Immediate Next Step**: A single, concrete instruction for the execution agent's next move. Specify which tool to use (if any) and why, based on the most recent interaction.
+    The Payload must include:
+    1. **Primary Objective**: A single, clear statement of the user's ultimate goal.
+    2. **Raw Data Persistence**: Extract and list all persistent facts, identifiers (e.g., IDs, codes), 
+       and exact values from the transcript and tool outputs. Do NOT summarize or generalize these numbers/IDs.
+    3. **Execution Log**: A brief record of what was just performed (the last tool output) and its result. 
+       Include any specific data points returned by tools that are required for subsequent steps.
+    4. **Current Blockers/Missing Info**: Identify exactly what is missing or what error occurred 
+       in the most recent step to determine the next move.
+    5. **Instruction for Next Step**: A precise, actionable instruction for the execution agent. 
+       Specify which tool to call and which specific values from the "Raw Data Persistence" should be used.
 
     Constraints: 
-    - DO NOT repeat tasks that have already been completed in 'Completion Status'.
-    - DO NOT provide a general plan; provide the specific NEXT step required to progress.
-    - Do not include pleasantries or meta-talk. Output ONLY the State & Next Step brief.
+    - NO Summarization of data: Keep IDs, prices, dates, and names exactly as they appear in the raw output.
+    - NO meta-talk: Do not include any pleasantries or commentary. 
+    - Output ONLY the State & Data Payload.
     """
 
     response = chat(
@@ -76,8 +82,8 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     )
 
     return [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": response.message.content}
+        #{"role": "system", "content": system_prompt},
+        {"role": "system", "content": response.message.content}
     ]
 
 def summarize_conversation(
