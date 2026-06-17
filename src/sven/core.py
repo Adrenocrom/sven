@@ -140,28 +140,20 @@ def summarize_conversation(
         messages: list, 
         system_prompt: str, 
         model: str, 
-        keep_recent_count: int = 3  # New parameter
+        keep_recent_count: int = 5  # New parameter
         ) -> list:
     """
-    Summarize the conversation history when it exceeds a certain limit.
+    Summarize the conversation history when it exceeds a certain limit, keep the goal and nessary informations.
     The last `keep_recent_count` messages will remain untouched and be appended 
     directly after the summary, while older messages are condensed.
     """
     without_system = [m for m in messages if m["role"] != "system"]
-
-    print(f"number of messages: \x1b[34m{len(without_system)}, {keep_recent_count}\x1b[0m\n");
     if len(without_system) <= keep_recent_count:
         return messages;
 
     old_context = without_system[:-keep_recent_count]
     new_context = without_system[-keep_recent_count:]
 
-    print("\x1b[33m")
-    pprint.pprint(f"{old_context}")
-    print("\x1b[0m")
-    print("\x1b[32m")
-    pprint.pprint(f"{new_context}")
-    print("\x1b[0m")
     # 3. Perform the summarization only on the older context
     summary_response = chat(
             model=model,
