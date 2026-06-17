@@ -23,11 +23,7 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
     messages.append({"role": "user", "content": user_text})
 
     while True:
-        print("\x1b[31mstart summaization\x1b[0m\n");
         messages = summarize_conversation(messages, system_prompt, model)
-        pprint.pprint(messages)
-        print("\x1b[31mfinish summaization\x1b[0m\n");
-
         response: ChatResponse = chat(
             model=model,
             messages=messages,
@@ -154,6 +150,7 @@ def summarize_conversation(
     old_context = without_system[:-keep_recent_count]
     new_context = without_system[-keep_recent_count:]
 
+    pprint.pprint(*old_context)
     # 3. Perform the summarization only on the older context
     summary_response = chat(
             model=model,
@@ -175,6 +172,8 @@ def summarize_conversation(
         if m["role"] != "system":
             final_history.append(m)
 
+    print("\x1b[33m-------\x1b[0m")
+    pprint.pprint(final_history)
     return final_history
 
 def process_tool_calls(
