@@ -150,7 +150,7 @@ def summarize_conversation(
     without_system = [m for m in messages if m["role"] != "system"]
 
     print(f"number of messages: \x1b[34m{len(without_system)}, {keep_recent_count}\x1b[0m\n");
-    if len(without_system) < keep_recent_count:
+    if len(without_system) <= keep_recent_count:
         return messages;
 
     old_context = without_system[:-keep_recent_count]
