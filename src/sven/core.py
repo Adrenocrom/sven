@@ -19,17 +19,10 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
     #memory_manager.update_scores()
     tools = list(available_functions.values())
     
-    # this function musst be reworked, its main compont.
-    if len(messages) > 1:
-        messages = summarize_conversation(messages, system_prompt, model)
-    messages.append({"role": "user", "content": user_text})
-
     while True:
         # Construct context
         # will be the most importand change!
-        #if len(messages) > 1:
-        #    messages = summarize_conversation(messages, system_prompt, model)
-        #messages.append({"role": "user", "content": user_text})
+        messages = summarize_conversation(messages, system_prompt, model)
 
         response: ChatResponse = chat(
             model=model,
@@ -48,23 +41,57 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
             print(f"{response.message.content}")
             break
 
-def summarize_conversation(messages: list, system_prompt: str, model: str) -> list:
+def summarize_conversation(
+        messages: list, 
+        system_prompt: str, 
+        model: str, 
+        keep_recent_count: int = 5  # New parameter
+        ) -> list:
     """
     Summarize the conversation history when it exceeds a certain limit.
-    Returns a new message list containing the system prompt followed by the summary.
+    The last `keep_recent_count` messages will remain untouched and be appended 
+    directly after the summary, while older messages are condensed.
     """
-    summary_context = [m for m in messages if m["role"] != "system"]
+
+    if len(messages) <= 2:
+        return messages
+
+    # 1. Separate the "Old" context from the "Recent" context
+    # If keep_recent_count is 0 (default), the whole list (minus system) is summarized.
+    if len(messages) > keep_recent_count:
+        old_context = messages[:-keep_recent_count]
+        new_context = messages[-keep_recent_count:]
+    else:
+        # If there aren't enough messages to fulfill the "keep" count, 
+        # nothing needs summarizing.
+        old_context = []
+        new_context = messages
+
+    # 2. Filter out system roles from the part being summarized
+    summary_context = [m for m in old_context if m["role"] != "system"]
+
+    # 3. Perform the summarization only on the older context
     summary_response = chat(
-        model=model,
-        messages=[
-            {"role": "system", "content": "Summarize the following conversation briefly while retaining all key information and context. Do not include system instructions or persona details."},
-            *summary_context
-        ],
-    )
-    return [
-        {"role": "system", "content": system_prompt},
-        {"role": "assistant", "content": f"Summary of previous conversation: {summary_response.message.content}"}
-    ]
+            model=model,
+            messages=[
+                {"role": "system", "content": "Summarize the following conversation briefly while retaining all key information and context. Do not include system instructions or persona details."},
+                *summary_context
+                ],
+            )
+
+    # 4. Construct the final list:
+    # [System Prompt] + [Summary Result] + [Raw Recent Messages]
+    final_history = [
+            {"role": "system", "content": system_prompt},
+            {"role": "assistant", "content": f"Summary of previous conversation: {summary_response.message.content}"}
+            ]
+
+    # Add the messages that were supposed to stay untouched (skipping any systemic ones)
+    for m in new_context:
+        if m["role"] != "system":
+            final_history.append(m)
+
+    return final_history
 
 def process_tool_calls(
         response_message, 
