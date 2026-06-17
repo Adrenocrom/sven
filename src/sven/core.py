@@ -14,7 +14,8 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
 
     while True:
         print("\x1b[31mstart summaization\x1b[0m\n");
-        messages = generate_mission_brief(messages, system_prompt, model)
+        messages = generate_mission_brief(messages, tools, system_prompt, model)
+        pprint.pprint(messages)
         print("\x1b[31mfinish summaization\x1b[0m\n");
 
         response: ChatResponse = chat(
@@ -34,21 +35,27 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
             print(f"{response.message.content}")
             break
 
-def generate_mission_brief(messages: list, system_prompt: str, model: str) -> list:
+def generate_mission_brief(messages: list, tools: list, system_prompt: str, model: str) -> list:
     """
-    Instead of a simple summary, this analyzes the conversation context 
+    Analyzes the conversation context and a provided list of available capabilities 
     to generate a specialized System Prompt for the next stage.
     """
+    # Filter out existing system prompts from the history to keep focus on user/assistant interaction
     summary_context = [m for m in messages if m["role"] != "system"]
-    
-    # The new meta-prompt: It tells the model to act as a "Logic Architect"
+
+    # Convert the tools list into a formatted string for the prompt instructions.
+    # This ensures the LLM reads them as capabilities rather than technical definitions.
+    tools_description = "\n".join([f"- {t}" for t in tools])
+
     meta_instruction = (
-        "Analyze the conversation provided below. Based on this context, "
-        "generate a NEW System Prompt for an AI assistant. This new prompt must: "
-        "1. Formulate a clear, primary goal based on the user's needs. "
-        "2. Extract and list all essential data points, constraints, and specific "
-        "information required to fulfill that goal. "
-        "3. Do not include pleasantries or meta-talk; output only the new System Prompt."
+        "You are an AI Architect. You will be provided with a conversation transcript "
+        f"and a list of available capabilities:\n{tools_description}\n\n"
+        "Your task is to analyze the conversation and generate a NEW System Prompt for an AI assistant. "
+        "This new prompt must:"
+        "\n1. Formulate a clear, primary goal based on the user's needs."
+        "\n2. Extract and list all essential data points, constraints, and specific info from the transcript required to fulfill that goal."
+        "\n3. Reference how the available capabilities should be used to achieve that goal."
+        "\n4. Do not include pleasantries or meta-talk; output only the new System Prompt."
     )
 
     response = chat(
@@ -58,12 +65,10 @@ def generate_mission_brief(messages: list, system_prompt: str, model: str) -> li
             *summary_context
         ],
     )
-    
-    # We rename 'summary' to 'mission_brief' or 'system_instructions' 
-    # because it is no longer a summary, but a set of instructions.
+
     return [
         {"role": "system", "content": system_prompt},
-        {"role": "assistant", "content": f"Core Mission and Data Context: {response.message.content}"}
+        {"role": "user", "content": f"Core Mission and Data Context: {response.message.content}"}
     ]
 
 def summarize_conversation(
