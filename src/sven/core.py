@@ -13,10 +13,10 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
     messages.append({"role": "user", "content": user_text})
 
     while True:
-        logger.info("\x1b[31mstart summaization\x1b[0m\n");
+        print("\x1b[31mstart summaization\x1b[0m\n");
         messages = summarize_conversation(messages, system_prompt, model)
         pprint.pprint(f"\n[+] Context provided by assistant:\n{str(messages)}\n")
-        logger.info("\x1b[31mfinish summaization\x1b[0m\n");
+        print("\x1b[31mfinish summaization\x1b[0m\n");
 
         response: ChatResponse = chat(
             model=model,
@@ -46,6 +46,7 @@ def summarize_conversation(
     The last `keep_recent_count` messages will remain untouched and be appended 
     directly after the summary, while older messages are condensed.
     """
+    print(f"number of messages: \x1b[34m{len(messages)}\x1b[0m\n");
 
     if len(messages) <= 2:
         return messages
