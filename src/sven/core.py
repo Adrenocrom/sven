@@ -28,7 +28,7 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
         print(f"Prompt tokens: {response.get('prompt_eval_count')}")
         print(f"Output tokens: {response.get('eval_count')}")
         if response.message.thinking is not None:
-            print(f"Thinking: {response.message.thinking}")
+            print(f"Thinking: \x1b[33m{response.message.thinking}\x1b[0m")
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
@@ -42,23 +42,29 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     """
     # Filter out existing system prompts from the history to keep focus on user/assistant interaction
     summary_context = [m for m in messages if m["role"] != "system"]
-    pprint.pprint(f"\x1b[32m{summary_context}\x1b[0m");
 
     # Convert the tools list into a formatted string for the prompt instructions.
     # This ensures the LLM reads them as capabilities rather than technical definitions.
     tools_description = "\n".join([f"- {t}" for t in tools])
 
-    meta_instruction = (
-        "You are an AI Architect. You will be provided with a conversation transcript "
-        f"and a list of available capabilities:\n{tools_description}\n\n"
-        "Your task is to analyze the conversation and generate a NEW System Prompt for an AI assistant. "
-        "This new prompt must:"
-        "\n1. Formulate a clear, primary goal based on the user's needs."
-        "\n2. Extract and list all essential data points, constraints, and specific info from the transcript required to fulfill that goal."
-        "\n3. Reference how the available capabilities should be used to achieve that goal."
-        "\n4. Do not include pleasantries or meta-talk; output only the new System Prompt."
-    )
+    meta_instruction = f"""
+    You are an AI Architect. You will be provided with a conversation transcript 
+    and a list of available capabilities:
+        {tools_description}
 
+    Your task is to distill the entire interaction into a concise, high-density 'Mission Brief' 
+    for an execution agent. This brief must include:
+    1. **Primary Objective**: A single, clear sentence defining the user's ultimate goal.
+    2. **Data Inventory**: A list of all facts, constraints, and variables extracted from 
+       the transcript (e.g., dates, names, specific preferences).
+    3. **Current State**: A summary of what has been accomplished so far based on the 
+       provided tool results.
+    4. **Action Plan**: A step-by-step instruction set for the execution agent, specifying 
+       which capabilities should be used and in what order to reach the goal.
+
+    Constraints: Do not include pleasantries, conversational filler, or meta-commentary. 
+    Output ONLY the Mission Brief.
+    """
     response = chat(
         model=model,
         messages=[

@@ -58,5 +58,53 @@
   {
     "id": "fdd173e4",
     "description": "Investigate token overflow in core and memory system."
+  },
+  {
+    "id": "2d538f64",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "06a5656b",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "e1437f7f",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "6532c691",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "b6cfeaa0",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "5ec3bb4c",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "a22629f7",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "a351e0c0",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "0f8f0a65",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "66991f96",
+    "description": "Map File Structure: Explore directory and identify state variables in core.py, config.py, and config.json."
+  },
+  {
+    "id": "22efc1ea",
+    "description": "Map File Structure"
+  },
+  {
+    "id": "583942e1",
+    "description": "Map File Structure"
   }
 ]
