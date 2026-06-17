@@ -24,7 +24,7 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
 
     while True:
         print("\x1b[31mstart summaization\x1b[0m\n");
-        messages = generate_mission_brief(messages, tools, system_prompt, model)
+        messages = summarize_conversation(messages, system_prompt, model)
         pprint.pprint(messages)
         print("\x1b[31mfinish summaization\x1b[0m\n");
 
@@ -140,7 +140,7 @@ def summarize_conversation(
         messages: list, 
         system_prompt: str, 
         model: str, 
-        keep_recent_count: int = 5  # New parameter
+        keep_recent_count: int = 3  # New parameter
         ) -> list:
     """
     Summarize the conversation history when it exceeds a certain limit.
@@ -149,29 +149,20 @@ def summarize_conversation(
     """
     print(f"number of messages: \x1b[34m{len(messages)}, {keep_recent_count}\x1b[0m\n");
 
-    if len(messages) <= 2:
-        return messages
+    without_system = [m for m in messages if m["role"] != "system"]
 
-    # 1. Separate the "Old" context from the "Recent" context
-    # If keep_recent_count is 0 (default), the whole list (minus system) is summarized.
-    if len(messages) > keep_recent_count:
-        old_context = messages[:-keep_recent_count]
-        new_context = messages[-keep_recent_count:]
-    else:
-        # If there aren't enough messages to fulfill the "keep" count, 
-        # nothing needs summarizing.
-        old_context = []
-        new_context = messages
+    if len(without_system) < keep_recent_count:
+        return message;
 
-    # 2. Filter out system roles from the part being summarized
-    summary_context = [m for m in old_context if m["role"] != "system"]
+    old_context = without_system[:-keep_recent_count]
+    new_context = without_system[-keep_recent_count:]
 
     # 3. Perform the summarization only on the older context
     summary_response = chat(
             model=model,
             messages=[
                 {"role": "system", "content": "Summarize the following conversation briefly while retaining all key information and context. Do not include system instructions or persona details."},
-                *summary_context
+                *old_context
                 ],
             )
 
