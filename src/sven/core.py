@@ -14,8 +14,7 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
 
     while True:
         print("\x1b[31mstart summaization\x1b[0m\n");
-        messages = summarize_conversation(messages, system_prompt, model)
-        pprint.pprint(f"\n[+] Context provided by assistant:\n{str(messages)}\n")
+        messages = generate_mission_brief(messages, system_prompt, model)
         print("\x1b[31mfinish summaization\x1b[0m\n");
 
         response: ChatResponse = chat(
@@ -34,6 +33,38 @@ def send(user_text: str, messages: list, system_prompt: str, model: str, availab
         if not response.message.tool_calls:
             print(f"{response.message.content}")
             break
+
+def generate_mission_brief(messages: list, system_prompt: str, model: str) -> list:
+    """
+    Instead of a simple summary, this analyzes the conversation context 
+    to generate a specialized System Prompt for the next stage.
+    """
+    summary_context = [m for m in messages if m["role"] != "system"]
+    
+    # The new meta-prompt: It tells the model to act as a "Logic Architect"
+    meta_instruction = (
+        "Analyze the conversation provided below. Based on this context, "
+        "generate a NEW System Prompt for an AI assistant. This new prompt must: "
+        "1. Formulate a clear, primary goal based on the user's needs. "
+        "2. Extract and list all essential data points, constraints, and specific "
+        "information required to fulfill that goal. "
+        "3. Do not include pleasantries or meta-talk; output only the new System Prompt."
+    )
+
+    response = chat(
+        model=model,
+        messages=[
+            {"role": "system", "content": meta_instruction},
+            *summary_context
+        ],
+    )
+    
+    # We rename 'summary' to 'mission_brief' or 'system_instructions' 
+    # because it is no longer a summary, but a set of instructions.
+    return [
+        {"role": "system", "content": system_prompt},
+        {"role": "assistant", "content": f"Core Mission and Data Context: {response.message.content}"}
+    ]
 
 def summarize_conversation(
         messages: list, 
