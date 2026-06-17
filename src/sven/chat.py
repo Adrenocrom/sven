@@ -64,7 +64,7 @@ def interactive_chat(
     
     # Fallback to defaults if not in config or provided as arguments
     model = model or config.get("model", "gemma4:12b")
-    system_prompt = system_prompt or config.get("system_prompt", "You are Sven. A senior Softwaredeveloper. Trust your toolcalls. Do not doublecheck if everything worked. A compile step will find problems for you.")
+    system_prompt = system_prompt or config.get("system_prompt", "You are Sven.")
     
     if options is None:
         # Parse options from config

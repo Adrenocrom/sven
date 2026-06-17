@@ -106,5 +106,25 @@
   {
     "id": "583942e1",
     "description": "Map File Structure"
+  },
+  {
+    "id": "e807cb18",
+    "description": "Define specification for session state (JSON format) and identify filename 'session_state.json'."
+  },
+  {
+    "id": "af75532d",
+    "description": "Define technical specifications for session state (JSON schema and filename)."
+  },
+  {
+    "id": "e292ab0c",
+    "description": "Define technical JSON schema and naming conventions for session_state.json"
+  },
+  {
+    "id": "cd3a6549",
+    "description": "Define JSON schema and naming conventions for session_state.json"
+  },
+  {
+    "id": "99e74441",
+    "description": "Define the schema for session_state.json"
   }
 ]
