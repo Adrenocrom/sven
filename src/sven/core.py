@@ -42,6 +42,7 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     """
     # Filter out existing system prompts from the history to keep focus on user/assistant interaction
     summary_context = [m for m in messages if m["role"] != "system"]
+    pprint.pprint(f"\x1b[32m{summary_context}\x1b[0m");
 
     # Convert the tools list into a formatted string for the prompt instructions.
     # This ensures the LLM reads them as capabilities rather than technical definitions.
