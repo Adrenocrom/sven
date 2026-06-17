@@ -157,6 +157,12 @@ def summarize_conversation(
     old_context = without_system[:-keep_recent_count]
     new_context = without_system[-keep_recent_count:]
 
+    print("\x1b[33m")
+    pprint.pprint(f"{old_context}")
+    print("\x1b[0m")
+    print("\x1b[32m")
+    pprint.pprint(f"{new_context}")
+    print("\x1b[0m")
     # 3. Perform the summarization only on the older context
     summary_response = chat(
             model=model,
