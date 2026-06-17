@@ -6,26 +6,17 @@ import logging
 # Setup a standard logger
 logger = logging.getLogger(__name__)
 
-from .memory_manager import MemoryManager
-
-# Global memory manager instance (could be moved to a config or state object later)
-memory_manager = MemoryManager()
-
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
 def send(user_text: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
-    # Extract facts from the new user input before processing
-    #memory_manager.add_fact(user_text)
-    #memory_manager.update_scores()
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_text})
 
     while True:
-        # Construct context
-        # will be the most importand change!
+        logger.info("\x1b[31mstart summaization\x1b[0m\n");
         messages = summarize_conversation(messages, system_prompt, model)
-
-        pprint.pprint(f"\n[+] Context provided by assistant:\n{str(messages)}")
+        pprint.pprint(f"\n[+] Context provided by assistant:\n{str(messages)}\n")
+        logger.info("\x1b[31mfinish summaization\x1b[0m\n");
 
         response: ChatResponse = chat(
             model=model,
