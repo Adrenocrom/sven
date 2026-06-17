@@ -109,7 +109,7 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
             tools=task_tools,
             messages=history
         )
-        history = process_tool_calls(response.message, available_functions, messages)
+        history = process_tool_calls(response.message, task_functions, messages)
         if not response.message.tool_calls:
             return [
                 {"role": "system", "content": system_prompt},
