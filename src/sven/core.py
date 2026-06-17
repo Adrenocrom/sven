@@ -46,7 +46,7 @@ def summarize_conversation(
     The last `keep_recent_count` messages will remain untouched and be appended 
     directly after the summary, while older messages are condensed.
     """
-    print(f"number of messages: \x1b[34m{len(messages)}\x1b[0m\n");
+    print(f"number of messages: \x1b[34m{len(messages)}, {keep_recent_count}\x1b[0m\n");
 
     if len(messages) <= 2:
         return messages
