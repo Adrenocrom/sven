@@ -7,7 +7,6 @@ from sven.tools.task import add_task, current_task, cancel_task, complete_task, 
 
 task_functions = {
   'add_task': add_task,
-  'current_task': current_task,
   'list_tasks': list_tasks,
   'cancel_task': cancel_task,
   'complete_task': complete_task,
@@ -104,8 +103,6 @@ def generate_mission_brief(messages: list, tools: list, system_prompt: str, mode
     #
     #   add_task("tool_name", arguments) – adds a new task to the top of the FIFO queue and persists it.
     #   list_tasks() – returns a serialised list of all pending tasks (from bottom to top).
-    #   current_task() – returns the tool name and its arguments for the current
-    #                    (top‑most) task without removing it.
     #   complete_task() – removes the top‑most task after its execution is fully
     #                     satisfied.
     #
