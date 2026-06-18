@@ -38,6 +38,8 @@ class Config:
     basic type checks, while the dataclass keeps the nice syntax for defaults.
     """
 
+    _data_dir: str = field(init=False, default="~/.local/share/sven")
+    _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
     _system_prompt: str = field(
         init=False,
@@ -46,6 +48,26 @@ class Config:
     options: Options = field(default_factory=Options)
     keep_recent_count: int = 5
     max_messages: int = 20
+
+    @property
+    def data_dir(self) -> str:
+        return os.path.expanduser(self._data_dir)
+
+    @data_dir.setter
+    def data_dir(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("data_dir must be a string")
+        self._data_dir = value
+
+    @property
+    def token_stats_file(self) -> str:
+        return self._token_stats_file
+
+    @token_stats_file.setter
+    def token_stats_file(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("token_stats_file must be a string")
+        self._token_stats_file = value
 
     @property
     def model(self) -> str:
@@ -77,6 +99,8 @@ class Config:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "data_dir": self.data_dir,
+            "token_stats_file": self.token_stats_file,
             "model": self.model,
             "system_prompt": self.system_prompt,
             "options": self.options.to_dict(),
@@ -95,9 +119,12 @@ class Config:
             max_messages=data.get("max_messages", 20),
             options=opts,
         )
+        cfg.data_dir = data.get("data_dir", "~/.local/share/sven")
+        cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
         cfg.system_prompt = data.get("system_prompt", "")
         return cfg
+
 
     @classmethod
     def from_json(cls, path: Path) -> "Config":
