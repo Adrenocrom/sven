@@ -46,23 +46,37 @@ def replacefile(filepath: str, newcontent: str) -> dict:
 
 def replaceline(filepath: str, linenumber: int, newcontent: str) -> dict:
     """
-    Replace a line in a file with new content.
+    Replace a line in a file with new content using standard file I/O.
+    This avoids external dependencies like vim or subprocess.
     
     args:
         str: filepath
-        int: linenumber
+        int: linenumber (1-indexed)
         str: newcontent
     return:
         dict: result of the operation
     """
     try:
-        vimmacro = f"gg{linenumber}cc{newcontent}"
-        cmd = ["vim", "-Es", f"+normal! {vimmacro}", "+x", filepath]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode == 0:
-            return {"success": True, "message": "OK", "data": None}
-        else:
-            return {"success": False, "message": f"Vim command failed with code {result.returncode}", "data": result.stderr}
+        # 1. Read all lines into memory
+        with open(filepath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        # Check if the line number is valid (linenumber is 1-indexed)
+        if not (1 <= linenumber <= len(lines)):
+            return {"success": False, "message": f"Line {linenumber} does not exist in {filepath}.", "data": None}
+
+        # 2. Modify the specific line (list indices are 0-based)
+        # We must ensure the new content includes a newline character if it's meant to replace a full line.
+        lines[linenumber - 1] = newcontent + '\n'
+
+        # 3. Write all modified lines back to the file
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
+        
+        return {"success": True, "message": "Successfully replaced line content.", "data": None}
+
+    except FileNotFoundError:
+        return {"success": False, "message": f"File not found at {filepath}.", "data": None}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
 
