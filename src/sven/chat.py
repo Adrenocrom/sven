@@ -1,7 +1,6 @@
-from typing import Optional
-import readline
 import atexit
 import os
+import readline
 from ollama import chat, Options
 
 # from sven.history import load_history
@@ -47,28 +46,29 @@ available_functions = {
     "find": find,
 }
 
-# Configure readline to store command history in a file. This enables the up/down arrow keys
-# to navigate through previously entered prompts across sessions.
-_history_file = os.path.expanduser("~/.sven_chat_history")
-# Load existing history if present
-if os.path.exists(_history_file):
-    try:
-        readline.read_history_file(_history_file)
-    except Exception:
-        pass
-# Ensure we write the history back when the program exits
-atexit.register(lambda: readline.write_history_file(_history_file))
-# Optional: limit history size to avoid unlimited growth
-readline.set_history_length(1000)
-
-# Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
-
 def interactive_chat() -> None:
-    """Run an interactive LLM conversation in the terminal with config from JSON.
-    The user's prompts are automatically stored in the readline history, allowing
-    the up/down arrow keys to toggle through the latest prompts.
+    """Run an interactive LLM conversation in the terminal.
+
+    Prompts are stored in a readline history file located under the directory
+    defined by ``Config.data_dir`` (default ``~/.local/share/sven``). This enables
+    the up/down arrow keys to toggle through previous prompts, persisting across
+    sessions.
     """
     config = Config.load()
+    # Ensure the data directory exists
+    os.makedirs(config.data_dir, exist_ok=True)
+    _history_file = os.path.join(config.data_dir, "chat_history")
+    # Load existing history if present
+    if os.path.exists(_history_file):
+        try:
+            readline.read_history_file(_history_file)
+        except Exception:
+            pass
+    # Save history on program exit
+    atexit.register(lambda: readline.write_history_file(_history_file))
+    # Limit history length to avoid unbounded growth
+    readline.set_history_length(1000)
+
     # messages = load_history()
     messages = []
     messages.append({"role": "system", "content": config.system_prompt})
@@ -80,7 +80,7 @@ def interactive_chat() -> None:
             break
         if not user_prompt.strip():
             continue  # ignore empty lines
-        # The prompt is automatically added to readline's history by input()
+        # input() automatically adds the line to readline history
         send(user_prompt, messages, available_functions, config)
 
 if __name__ == "__main__":
