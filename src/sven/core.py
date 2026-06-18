@@ -23,7 +23,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_prompt})
     while True:
-        if(len(messages) > 20):
+        if(len(messages) > config.max_messages):
             messages = summarize_conversation(user_prompt, messages, config)
         stream = chat(
             model=config.model,
@@ -68,7 +68,6 @@ def summarize_conversation(
         user_prompt: str,
         messages: list, 
         config,
-        keep_recent_count: int = 4  # New parameter
         ) -> list:
     """
     "Summarize the following conversation into a concise, fact-heavy paragraph. "
@@ -76,11 +75,11 @@ def summarize_conversation(
     "Omit all conversational filler, pleasantries, and internal system instructions."
     """
     without_system = [m for m in messages if m["role"] != "system"]
-    if len(without_system) <= keep_recent_count:
+    if len(without_system) <= config.keep_recent_count:
         return messages;
 
-    old_context = without_system[:-keep_recent_count]
-    new_context = without_system[-keep_recent_count:]
+    old_context = without_system[:-config.keep_recent_count]
+    new_context = without_system[-config.keep_recent_count:]
 
     stream = chat(
             model=config.model,

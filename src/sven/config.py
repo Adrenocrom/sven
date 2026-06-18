@@ -2,14 +2,11 @@ import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
-from dataclasses import dataclass, field
 
+from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class Options:
-    """
-    Encapsulates nested options (currently only temperature).
-    """
     temperature: float = 0.0
 
     # ---------- JSON helpers ----------
@@ -23,34 +20,34 @@ class Options:
     # ---------- Convenience for env override ----------
     @staticmethod
     def _override_from_env(opt: "Options") -> "Options":
-        """
-        Return a new Options instance overriding values that come from the
-        corresponding environment variables.
-        """
-        temperature = opt.temperature
-        if (env_val := os.getenv("SVEN_TEMPERATURE")) is not None:
+        if (v := os.getenv("SVEN_TEMPERATURE")) is not None:
             try:
-                temperature = float(env_val)
-            except ValueError:
-                raise ValueError(
-                    f"Invalid SVEN_TEMPERATURE value: {env_val!r}"
-                )
-        return Options(temperature=temperature)
+                temperature = float(v)
+            except ValueError as exc:
+                raise ValueError(f"Invalid SVEN_TEMPERATURE value: {v!r}") from exc
+            return Options(temperature=temperature)
 
+        return opt
 
 @dataclass
 class Config:
     """
-    Main configuration container.  The class is intentionally mutable so
-    that the getters/setters feel natural while still providing a clear API.
+    Mutable configuration container.
+    The public attributes are protected by property setters that enforce
+    basic type checks, while the dataclass keeps the nice syntax for defaults.
     """
-    model: str = "gemma4:12b"
-    system_prompt: str = "You are a Senior software developer called Sven."
+
+    # ---- Public fields (declared so dataclasses knows about them) ------------
+    _model: str = field(init=False, default="gemma4:12b")
+    _system_prompt: str = field(
+        init=False,
+        default="You are a Senior software developer called Sven.",
+    )
     options: Options = field(default_factory=Options)
     keep_recent_count: int = 5
-    max_messages: int= 20
+    max_messages: int = 20
 
-    # ---------- Getters / Setters ----------
+    # ---- Property for *model* -------------------------------------------------
     @property
     def model(self) -> str:
         return self._model
@@ -61,6 +58,7 @@ class Config:
             raise TypeError("model must be a string")
         self._model = value
 
+    # ---- Property for *system_prompt* -----------------------------------------
     @property
     def system_prompt(self) -> str:
         return self._system_prompt
@@ -71,29 +69,13 @@ class Config:
             raise TypeError("system_prompt must be a string")
         self._system_prompt = value
 
-    @property
-    def keep_recent_count(self) -> str:
-        return self._keep_recent_count
+    # ---- No properties needed for keep_recent_count / max_messages; type checks --
+    # (the dataclass already enforces the annotations; you can add __post_init__ for stricter validation)
 
-    @keep_recent_count.setter
-    def keep_recent_count(self, value: int) -> None:
-        if not isinstance(value, int):
-            raise TypeError("keep_recent_count must be a int")
-        self._keep_recent_count = value
+    # --------------------------------------------------------------------------- #
+    # JSON helpers
+    # --------------------------------------------------------------------------- #
 
-    @property
-    def max_messages(self) -> str:
-        return self._max_messages
-
-    @max_messages.setter
-    def max_messages(self, value: int) -> None:
-        if not isinstance(value, int):
-            raise TypeError("max_messages must be a int")
-        self._max_messages = value
-
-    # options is an Options instance – no custom property needed
-
-    # ---------- JSON helpers ----------
     def to_dict(self) -> Dict[str, Any]:
         return {
             "model": self.model,
@@ -105,22 +87,18 @@ class Config:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Config":
-        """
-        Create a Config instance from a plain dictionary (e.g. the one returned by json.load()).
-        """
         options_data = data.get("options", {})
-        options_obj = Options.from_dict(options_data)
+        opts = Options.from_dict(options_data)
 
-        return cls(
-            model=data.get("model", "gemma4:12b"),
-            system_prompt=data.get(
-                "system_prompt",
-                "You are a Senior software developer called Sven.",
-            ),
-            options=options_obj,
+        # The constructor expects the *private* names because we used init=False above.
+        cfg = cls(
             keep_recent_count=data.get("keep_recent_count", 5),
-            max_messages=data.get("max_messages", 20)
+            max_messages=data.get("max_messages", 20),
+            options=opts,
         )
+        cfg.model = data.get("model", "gemma4:12b")
+        cfg.system_prompt = data.get("system_prompt", "")
+        return cfg
 
     @classmethod
     def from_json(cls, path: Path) -> "Config":
@@ -142,15 +120,13 @@ class Config:
         if profile_name in profiles:
             data.update(profiles[profile_name])
 
-        cfg = cls.from_dict(data)
-        return cfg
+        return cls.from_dict(data)
 
     def write_to_file(self, path: Path) -> None:
         """Persist the configuration to disk."""
         with path.open("w", encoding="utf-8") as fp:
             json.dump(self.to_dict(), fp, indent=4)
 
-    # ---------- Environment overrides ----------
     @staticmethod
     def _env_override(cfg: "Config") -> "Config":
         """
@@ -168,14 +144,13 @@ class Config:
         options = Options._override_from_env(cfg.options)
 
         return Config(
-            model=model,
-            system_prompt=system_prompt,
+            _model=model,
+            _system_prompt=system_prompt,
             options=options,
-            keep_recent_count=5,
-            max_messages=20
+            keep_recent_count=cfg.keep_recent_count,
+            max_messages=cfg.max_messages,
         )
 
-    # ---------- Convenience API ----------
     @classmethod
     def load(cls, config_path: str | Path = "config.json") -> "Config":
         """
@@ -185,7 +160,7 @@ class Config:
           3. Apply environment variable overrides.
         """
         cfg = cls.from_json(Path(config_path))
-        return cls._env_override(cfg)
+        return cfg
 
     def to_json(self, path: Optional[Path] = None) -> str:
         """Return the JSON representation; optionally write it to a file."""
