@@ -1,10 +1,9 @@
-# src/mychat/chat.py
 import json
 from typing import Optional
 import readline
 from ollama import chat, Options
 
-#from sven.history import load_history
+# from sven.history import load_history
 
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
@@ -18,38 +17,40 @@ from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
 from sven.tools.python import compilefile, compilefiles
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
+from sven.tools.grep import grep
+from sven.tools.find import find
 
 from sven.core import process_tool_calls
 from sven.core import send
 from sven.config import Config
 
 available_functions = {
-  'getdatetime': getdatetime,
-  'websearch': websearch,
-  'webfetch': webfetch,
-  'manpage': manpage,
-  'touch': touch,
-  'listfiles': listfiles,
-  'read': read,
-  'searchandreplace': searchandreplace,
-  'replacefile': replacefile,
-  'replaceline': replaceline,
-  'compilefile': compilefile,
-  'compilefiles': compilefiles,
-  'add_task': add_task,
-  'current_task': current_task,
-  'list_tasks': list_tasks,
-  'cancel_task': cancel_task,
-  'complete_task': complete_task,
+    "getdatetime": getdatetime,
+    "websearch": websearch,
+    "webfetch": webfetch,
+    "manpage": manpage,
+    "touch": touch,
+    "listfiles": listfiles,
+    "read": read,
+    "searchandreplace": searchandreplace,
+    "replacefile": replacefile,
+    "replaceline": replaceline,
+    "compilefile": compilefile,
+    "compilefiles": compilefiles,
+    "add_task": add_task,
+    "current_task": current_task,
+    "list_tasks": list_tasks,
+    "cancel_task": cancel_task,
+    "complete_task": complete_task,
+    "grep": grep,
+    "find": find,
 }
 
 # Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
 def interactive_chat() -> None:
-    """
-    Run an interactive LLM conversation in the termnal with config from JSON.
-    """
+    """Run an interactive LLM conversation in the terminal with config from JSON."""
     config = Config.load()
-    #messages = load_history()
+    # messages = load_history()
     messages = []
     messages.append({"role": "system", "content": config.system_prompt})
     while True:
@@ -62,5 +63,5 @@ def interactive_chat() -> None:
             continue  # ignore empty lines
         send(user_prompt, messages, available_functions, config)
 
-if __name__ == "__name__":
+if __name__ == "__main__":
     interactive_chat()
