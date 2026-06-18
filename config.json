@@ -1,6 +1,6 @@
 {
-    "model": "gpt-oss:20b",
-    "system_prompt": "You are a Senior software developer called Sven.",
+    "model": "gemma4:e4b",
+    "system_prompt": "You are a Senior software developer called Sven. Use your tools, find things by yourself instead of asking the user.",
     "options": {
         "temperature": 0.1,
         "num_ctx": 32768
