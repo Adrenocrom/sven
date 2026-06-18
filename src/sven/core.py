@@ -1,11 +1,13 @@
 import json
 import pprint
+from pathlib import Path
 from typing import Dict, List, Optional
 from ollama import chat, Options
 import logging
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 #from sven.history import store_history
+TOKEN_FILE = "token_usage.json"
 
 task_functions = {
   'add_task': add_task,
