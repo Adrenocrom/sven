@@ -1,6 +1,6 @@
-import atexit
 import os
 import readline
+import atexit
 from ollama import chat, Options
 
 # from sven.history import load_history
@@ -76,6 +76,9 @@ def interactive_chat() -> None:
         try:
             user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
         except EOFError:
+            print("\n[Conversation ended]")
+            break
+        except KeyboardInterrupt:
             print("\n[Conversation ended]")
             break
         if not user_prompt.strip():
