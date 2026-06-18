@@ -4,7 +4,7 @@ from typing import Optional
 import readline
 from ollama import chat, Options
 
-from sven.history import load_history
+#from sven.history import load_history
 
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
@@ -21,7 +21,7 @@ from sven.tools.task import add_task, current_task, cancel_task, complete_task, 
 
 from sven.core import process_tool_calls
 from sven.core import send
-from sven.config import load_config
+from sven.config import Config
 
 available_functions = {
   'getdatetime': getdatetime,
@@ -44,51 +44,23 @@ available_functions = {
 }
 
 # Enable input history with arrow keys using readline (Unix). On Windows, the module may not be available.
-def interactive_chat(
-    model: str = None,
-    options: Options | None = None,
-    system_prompt: str = None,
-) -> None:
+def interactive_chat() -> None:
     """
     Run an interactive LLM conversation in the termnal with config from JSON.
-
-    Parameters
-    ----------
-    model : str, optional
-        Ollama model name (e.g., 'gpt-oss:20b').
-    options : Options, optional
-        Generation parameters; if omitted a default of
-        `temperature=0.0` is used.
-    system_prompt : str, optional
-        Initial system message that sets the assistant's role.
     """
-    config = load_config()
-    messages = load_history()
-    
-    # Fallback to defaults if not in config or provided as arguments
-    model = model or config.get("model", "gemma4:12b")
-    system_prompt = system_prompt or config.get("system_prompt", "You are Sven.")
-    
-    if options is None:
-        # Parse options from config
-        opt_dict = config.get("options", {"temperature": 0.0})
-        options = Options(**opt_dict)
-
-    # Conversation history
-    
-    messages.append({"role": "system", "content": system_prompt})
-
+    config = Config.load()
+    #messages = load_history()
+    messages = []
+    messages.append({"role": "system", "content": config.system_prompt})
     while True:
         try:
             user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
-        except EOFError:  # Ctrl‑D (Unix) / Ctrl‑Z (Windows)
+        except EOFError:
             print("\n[Conversation ended]")
             break
-
         if not user_prompt.strip():
             continue  # ignore empty lines
-
-        send(user_prompt, messages, system_prompt, model, available_functions, options)
+        send(user_prompt, messages, available_functions, config)
 
 if __name__ == "__name__":
     interactive_chat()

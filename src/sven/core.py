@@ -5,7 +5,7 @@ from ollama import chat, Options
 import logging
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
-from sven.history import store_history
+#from sven.history import store_history
 
 task_functions = {
   'add_task': add_task,
@@ -19,17 +19,17 @@ logger = logging.getLogger(__name__)
 
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
-def send(user_prompt: str, messages: list, system_prompt: str, model: str, available_functions: Dict[str, any], options: Optional[Options] = None) ->  list:
+def send(user_prompt: str, messages: list, available_functions: Dict[str, any], config) ->  list:
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_prompt})
     while True:
         if(len(messages) > 20):
-            messages = summarize_conversation(system_prompt, user_prompt, messages,model)
+            messages = summarize_conversation(user_prompt, messages, config)
         stream = chat(
-            model=model,
+            model=config.model,
             messages=messages,
             tools=tools,
-            options=options,
+            #options=config.options,
             stream=True,
         )
         content = ""
@@ -61,14 +61,13 @@ def send(user_prompt: str, messages: list, system_prompt: str, model: str, avail
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
-            store_history(messages)
+            #store_history(messages)
             break
 
 def summarize_conversation(
-        system_prompt: str, 
         user_prompt: str,
         messages: list, 
-        model: str, 
+        config,
         keep_recent_count: int = 4  # New parameter
         ) -> list:
     """
@@ -84,7 +83,7 @@ def summarize_conversation(
     new_context = without_system[-keep_recent_count:]
 
     stream = chat(
-            model=model,
+            model=config.model,
             messages=[
                 {"role": "system", "content":
                  "Summarize the following conversation into a concise, fact-heavy paragraph. "
@@ -111,7 +110,7 @@ def summarize_conversation(
         print(f"\n\x1b[0m\x1b[1min Error: {e}\x1b[0m")
         return [];
     final_history = [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
             {"role": "user", "content": user_prompt}
             ]

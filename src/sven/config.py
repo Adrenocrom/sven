@@ -1,61 +1,168 @@
-"""
-Configuration management for the Sven project.
-Supports environment variables and different profiles (dev, prod).
-"""
-
-import os
 import json
-from typing import Any, Dict
+import os
+from pathlib import Path
+from typing import Any, Dict, Optional
+from dataclasses import dataclass, field
 
-def load_config(profile: str = "dev") -> Dict[str, Any]:
+
+@dataclass(frozen=True)
+class Options:
     """
-    Load configuration from a JSON file and override with environment variables.
-    
-    Args:
-        profile (str): The profile to use (e.g., 'dev', 'prod').
-        
-    Returns:
-        Dict[str, Any]: The loaded configuration.
+    Encapsulates nested options (currently only temperature).
     """
-    # Default config path
-    config_path = "config.json"
-    
-    # Load base configuration from file
-    try:
-        with open(config_path, "r") as f:
-            config = json.load(f)
-    except FileNotFoundError:
-        # Default configuration if file is missing
-        config = {
-            "model": "gemma4:12b",
-            "system_prompt": "You are a Senior software developer called Sven.",
-            "options": {
-                "temperature": 0.7
-            }
+    temperature: float = 0.0
+
+    # ---------- JSON helpers ----------
+    def to_dict(self) -> Dict[str, Any]:
+        return {"temperature": self.temperature}
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Options":
+        return cls(temperature=data.get("temperature", 0.0))
+
+    # ---------- Convenience for env override ----------
+    @staticmethod
+    def _override_from_env(opt: "Options") -> "Options":
+        """
+        Return a new Options instance overriding values that come from the
+        corresponding environment variables.
+        """
+        temperature = opt.temperature
+        if (env_val := os.getenv("SVEN_TEMPERATURE")) is not None:
+            try:
+                temperature = float(env_val)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid SVEN_TEMPERATURE value: {env_val!r}"
+                )
+        return Options(temperature=temperature)
+
+
+@dataclass
+class Config:
+    """
+    Main configuration container.  The class is intentionally mutable so
+    that the getters/setters feel natural while still providing a clear API.
+    """
+    model: str = "gemma4:12b"
+    system_prompt: str = "You are a Senior software developer called Sven."
+    options: Options = field(default_factory=Options)
+
+    # ---------- Getters / Setters ----------
+    @property
+    def model(self) -> str:
+        return self._model
+
+    @model.setter
+    def model(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("model must be a string")
+        self._model = value
+
+    @property
+    def system_prompt(self) -> str:
+        return self._system_prompt
+
+    @system_prompt.setter
+    def system_prompt(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("system_prompt must be a string")
+        self._system_prompt = value
+
+    # options is an Options instance – no custom property needed
+
+    # ---------- JSON helpers ----------
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "model": self.model,
+            "system_prompt": self.system_prompt,
+            "options": self.options.to_dict(),
         }
-        with open(config_path, "w") as f:
-            json.dump(config, f, indent=2)
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Config":
+        """
+        Create a Config instance from a plain dictionary (e.g. the one returned by json.load()).
+        """
+        options_data = data.get("options", {})
+        options_obj = Options.from_dict(options_data)
 
-    # If a profile is specified and exists in the config, we could potentially 
-    # load specific settings for that profile. For now, let's just ensure 
-    # it's handled if added to config.json later.
-    if "profiles" in config and profile in config["profiles"]:
-        config.update(config["profiles"][profile])
+        return cls(
+            model=data.get("model", "gemma4:12b"),
+            system_prompt=data.get(
+                "system_prompt",
+                "You are a Senior software developer called Sven.",
+            ),
+            options=options_obj,
+        )
 
-    # Override with environment variables
-    # Example: SVEN_MODEL overrides 'model' key
-    if "model" in config and os.getenv("SVEN_MODEL"):
-        config["model"] = os.getenv("SVEN_MODEL")
-    
-    if "system_prompt" in config and os.getenv("SVEN_SYSTEM_PROMPT"):
-        config["system_prompt"] = os.getenv("SVEN_SYSTEM_PROMPT")
+    @classmethod
+    def from_json(cls, path: Path) -> "Config":
+        """
+        Load configuration from a JSON file.
+        If the file does not exist, a default instance is created and written to disk.
+        """
+        if not path.exists():
+            cfg = cls()
+            cfg.write_to_file(path)
+            return cfg
 
-    # Handle options if they exist
-    if "options" in config:
-        opt_dict = config["options"]
-        # Example: SVEN_TEMPERATURE overrides 'temperature' inside options
-        if "temperature" in opt_dict and os.getenv("SVEN_TEMPERATURE"):
-            opt_dict["temperature"] = float(os.getenv("SVEN_TEMPERATURE"))
+        with path.open("r", encoding="utf-8") as fp:
+            data = json.load(fp)
 
-    return config
+        # Handle profile‑specific overrides if present
+        profiles = data.get("profiles", {})
+        profile_name = os.getenv("SVEN_PROFILE", "dev")
+        if profile_name in profiles:
+            data.update(profiles[profile_name])
+
+        cfg = cls.from_dict(data)
+        return cfg
+
+    def write_to_file(self, path: Path) -> None:
+        """Persist the configuration to disk."""
+        with path.open("w", encoding="utf-8") as fp:
+            json.dump(self.to_dict(), fp, indent=4)
+
+    # ---------- Environment overrides ----------
+    @staticmethod
+    def _env_override(cfg: "Config") -> "Config":
+        """
+        Return a new Config instance where any recognised environment variable
+        has overridden the corresponding field.
+        """
+        model = cfg.model
+        if (v := os.getenv("SVEN_MODEL")):
+            model = v
+
+        system_prompt = cfg.system_prompt
+        if (v := os.getenv("SVEN_SYSTEM_PROMPT")):
+            system_prompt = v
+
+        options = Options._override_from_env(cfg.options)
+
+        return Config(
+            model=model,
+            system_prompt=system_prompt,
+            options=options,
+        )
+
+    # ---------- Convenience API ----------
+    @classmethod
+    def load(cls, config_path: str | Path = "config.json") -> "Config":
+        """
+        Full load pipeline:
+          1. Load defaults from file (or create a new one).
+          2. Merge profile overrides.
+          3. Apply environment variable overrides.
+        """
+        cfg = cls.from_json(Path(config_path))
+        return cls._env_override(cfg)
+
+    def to_json(self, path: Optional[Path] = None) -> str:
+        """Return the JSON representation; optionally write it to a file."""
+        json_str = json.dumps(self.to_dict(), indent=4)
+        if path is not None:
+            with path.open("w", encoding="utf-8") as fp:
+                fp.write(json_str)
+        return json_str

@@ -1,4 +1,7 @@
 {
-  "model": "gemma4:12b",
-  "system_prompt": "You are a Senior software developer called Sven."
+    "model": "gemma4:12b",
+    "system_prompt": "You are a Senior software developer called Sven.",
+    "options": {
+        "temperature": 0.1
+    }
 }
