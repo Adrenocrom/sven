@@ -86,9 +86,9 @@ def summarize_conversation(
             options=config.options.to_dict(),
             messages=[
                 {"role": "system", "content":
-                 "Summarize the following conversation into a concise, fact-heavy paragraph. "
-                 "Focus exclusively on user preferences, established facts, current goals, and key decisions. "
-                 "Omit all conversational filler, pleasantries, and internal system instructions."
+                 """
+                 Provide a concise summary focusing on: [preferences, facts, goals, decisions]. Omit pleasantries and system notes.
+                 """
                  },
                 *old_context
                 ],
