@@ -29,7 +29,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
             model=config.model,
             messages=messages,
             tools=tools,
-            #options=config.options,
+            options=config.options.to_dict(),
             stream=True,
         )
         content = ""
@@ -83,6 +83,7 @@ def summarize_conversation(
 
     stream = chat(
             model=config.model,
+            options=config.options.to_dict(),
             messages=[
                 {"role": "system", "content":
                  "Summarize the following conversation into a concise, fact-heavy paragraph. "

@@ -1,8 +1,9 @@
 {
-    "model": "gemma4:12b",
+    "model": "gpt-oss:20b",
     "system_prompt": "You are a Senior software developer called Sven.",
     "options": {
-        "temperature": 0.0
+        "temperature": 0.0,
+        "num_ctx": 32768
     },
     "keep_recent_count": 5,
     "max_messages": 20

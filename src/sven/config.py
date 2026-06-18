@@ -8,14 +8,15 @@ from dataclasses import dataclass, field
 @dataclass(frozen=True)
 class Options:
     temperature: float = 0.0
+    num_ctx: int = 2048
 
     # ---------- JSON helpers ----------
     def to_dict(self) -> Dict[str, Any]:
-        return {"temperature": self.temperature}
+        return {"temperature": self.temperature, "num_ctx": self.num_ctx}
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Options":
-        return cls(temperature=data.get("temperature", 0.0))
+        return cls(temperature=data.get("temperature", 0.0), num_ctx=data.get("num_ctx", 2048))
 
     # ---------- Convenience for env override ----------
     @staticmethod
@@ -37,7 +38,6 @@ class Config:
     basic type checks, while the dataclass keeps the nice syntax for defaults.
     """
 
-    # ---- Public fields (declared so dataclasses knows about them) ------------
     _model: str = field(init=False, default="gemma4:12b")
     _system_prompt: str = field(
         init=False,
@@ -47,7 +47,6 @@ class Config:
     keep_recent_count: int = 5
     max_messages: int = 20
 
-    # ---- Property for *model* -------------------------------------------------
     @property
     def model(self) -> str:
         return self._model
