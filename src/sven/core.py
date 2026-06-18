@@ -7,7 +7,7 @@ import logging
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 #from sven.history import store_history
-TOKEN_FILE = "token_usage.json"
+TOKEN_FILE = "tokens.json"
 
 task_functions = {
   'add_task': add_task,
@@ -23,6 +23,23 @@ writing_tools = ['replacefile', 'replaceline', 'touch']
 
 input_tokens: int = 0
 output_tokens: int = 0
+
+def _load_token_counts():
+    global input_tokens, output_tokens
+    try:
+        with open(TOKEN_FILE, "r") as f:
+            data = json.load(f)
+            input_tokens = data.get("input_tokens", 0)
+            output_tokens = data.get("output_tokens", 0)
+    except (FileNotFoundError, json.JSONDecodeError):
+        input_tokens = 0
+        output_tokens = 0
+
+def _save_token_counts():
+    with open(TOKEN_FILE, "w") as f:
+        json.dump({"input_tokens": input_tokens, "output_tokens": output_tokens}, f)
+
+_load_token_counts()
 
 def send(user_prompt: str, messages: list, available_functions: Dict[str, any], config) ->  list:
     global input_tokens, output_tokens          # <‑‑ add this line
@@ -57,6 +74,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
                 if chunk.done:
                     input_tokens += chunk.prompt_eval_count
                     output_tokens += chunk.eval_count
+                    _save_token_counts()
                     print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
                     response = chunk
                     break;
@@ -114,6 +132,7 @@ def summarize_conversation(
             if chunk.done:
                 input_tokens += chunk.prompt_eval_count
                 output_tokens += chunk.eval_count
+                _save_token_counts()
                 print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
                 break;
         print("\x1b[0m")

@@ -1,9 +1,9 @@
 {
-    "model": "gemma4:e4b",
+    "model": "gemma4:12b",
     "system_prompt": "You are a Senior software developer called Sven. Use your tools, find things by yourself instead of asking the user.",
     "options": {
         "temperature": 0.1,
-        "num_ctx": 262144
+        "num_ctx": 32768
     },
     "keep_recent_count": 10,
     "max_messages": 30

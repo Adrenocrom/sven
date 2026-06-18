@@ -1,13 +1,23 @@
 # Sven
 
-Sven is a powerful AI assistant designed to help you with software development tasks. It can perform various actions like searching the web, reading files, and managing tasks.
+Sven is an autonomous AI agent designed to assist with software development tasks by leveraging a tool-calling architecture. Unlike standard chat interfaces, Sven can manage its own goals through a structured task system, allowing it to break down complex requests into actionable steps and track progress autonomously.
 
 ## Features
 
-- **Web Search**: Get real-time information from the internet.
-- **File Management**: Read, write, and modify files easily.
-- **Task Management**: Keep track of your goals with a built-in task system.
-- **Interactive Chat**: Engage in a natural conversation with Sven.
+- **Agentic Task Management**: Automatically decomposes complex goals into sub-tasks, manages state transitions, and tracks success criteria.
+- **Tool Integration**: Equipped with a suite of built-in tools:
+    - **Web Search**: Real-time information retrieval from the internet.
+    - **File System Operations**: Read, write, and modify files directly.
+    - **System Utilities**: Access to `man` pages, `git` commands, and more.
+- **Advanced Context Management**: Intelligent conversation summarization to maintain context over long interactions while staying within model token limits.
+- **Configurable Environment**: Support for multiple profiles (e.g., 'dev', 'prod') via `config.json` and environment variables.
+
+## Configuration
+
+Sven's behavior can be customized via `config.json` or environment variables:
+- `SVEN_MODEL`: The Ollama model to use (default: `gemma4:12b`).
+- `SVEN_PROFILE`: Select a specific configuration profile.
+- `SVEN_TEMPERATURE`: Adjust the creativity of the responses.
 
 ## Installation
 
@@ -19,10 +29,10 @@ poetry install
 
 ## Usage
 
-Start the interactive chat by running:
+Start the interactive agent:
 
 ```bash
-sven
+poetry run sven
 ```
 
 ## Development
