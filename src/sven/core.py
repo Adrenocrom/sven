@@ -19,7 +19,11 @@ logger = logging.getLogger(__name__)
 
 writing_tools = ['replacefile', 'replaceline', 'touch']
 
+input_tokens: int = 0
+output_tokens: int = 0
+
 def send(user_prompt: str, messages: list, available_functions: Dict[str, any], config) ->  list:
+    global input_tokens, output_tokens          # <‑‑ add this line
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_prompt})
     while True:
@@ -49,7 +53,9 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
                 if chunk.message.tool_calls is not None:
                     tool_calls = chunk.message.tool_calls
                 if chunk.done:
-                    print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
+                    input_tokens += chunk.prompt_eval_count
+                    output_tokens += chunk.eval_count
+                    print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
                     response = chunk
                     break;
         except Exception as e:
@@ -74,6 +80,7 @@ def summarize_conversation(
     "Focus exclusively on user preferences, established facts, current goals, and key decisions. "
     "Omit all conversational filler, pleasantries, and internal system instructions."
     """
+    global input_tokens, output_tokens          # <‑‑ add this line
     without_system = [m for m in messages if m["role"] != "system"]
     if len(without_system) <= config.keep_recent_count:
         return messages;
@@ -103,7 +110,9 @@ def summarize_conversation(
                 final_summary += chunk.message.content
                 print(chunk.message.content, end="", flush=True)
             if chunk.done:
-                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count}\x1b[0m")
+                input_tokens += chunk.prompt_eval_count
+                output_tokens += chunk.eval_count
+                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
                 break;
         print("\x1b[0m")
     except Exception as e:
