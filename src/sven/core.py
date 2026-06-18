@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from ollama import chat, Options
 import logging
+import json
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 #from sven.history import store_history
-TOKEN_FILE = "tokens.json"
 
 task_functions = {
   'add_task': add_task,
@@ -24,10 +24,11 @@ writing_tools = ['replacefile', 'replaceline', 'touch']
 input_tokens: int = 0
 output_tokens: int = 0
 
-def _load_token_counts():
+def _load_token_counts(config):
     global input_tokens, output_tokens
+    token_file = Path(config.data_dir) / config.token_stats_file
     try:
-        with open(TOKEN_FILE, "r") as f:
+        with open(token_file, "r") as f:
             data = json.load(f)
             input_tokens = data.get("input_tokens", 0)
             output_tokens = data.get("output_tokens", 0)
@@ -35,14 +36,15 @@ def _load_token_counts():
         input_tokens = 0
         output_tokens = 0
 
-def _save_token_counts():
-    with open(TOKEN_FILE, "w") as f:
+def _save_token_counts(config):
+    token_file = Path(config.data_dir) / config.token_stats_file
+    token_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(token_file, "w") as f:
         json.dump({"input_tokens": input_tokens, "output_tokens": output_tokens}, f)
-
-_load_token_counts()
 
 def send(user_prompt: str, messages: list, available_functions: Dict[str, any], config) ->  list:
     global input_tokens, output_tokens          # <‑‑ add this line
+    _load_token_counts(config)
     tools = list(available_functions.values())
     messages.append({"role": "user", "content": user_prompt})
     while True:
@@ -74,7 +76,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
                 if chunk.done:
                     input_tokens += chunk.prompt_eval_count
                     output_tokens += chunk.eval_count
-                    _save_token_counts()
+                    _save_token_counts(config)
                     print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
                     response = chunk
                     break;
@@ -132,7 +134,7 @@ def summarize_conversation(
             if chunk.done:
                 input_tokens += chunk.prompt_eval_count
                 output_tokens += chunk.eval_count
-                _save_token_counts()
+                _save_token_counts(config)
                 print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
                 break;
         print("\x1b[0m")
