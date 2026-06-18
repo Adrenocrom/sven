@@ -1,4 +1,5 @@
 import json
+import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -39,6 +40,7 @@ class Config:
     """
 
     _data_dir: str = field(init=False, default="~/.local/share/sven")
+    _config_dir: str = field(init=False, default="~/.config/sven")
     _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
     _system_prompt: str = field(
@@ -58,6 +60,16 @@ class Config:
         if not isinstance(value, str):
             raise TypeError("data_dir must be a string")
         self._data_dir = value
+
+    @property
+    def config_dir(self) -> str:
+        return os.path.expanduser(self._config_dir)
+
+    @config_dir.setter
+    def config_dir(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("config_dir must be a string")
+        self._config_dir = value
 
     @property
     def token_stats_file(self) -> str:
@@ -100,6 +112,7 @@ class Config:
     def to_dict(self) -> Dict[str, Any]:
         return {
             "data_dir": self.data_dir,
+            "config_dir": self.config_dir,
             "token_stats_file": self.token_stats_file,
             "model": self.model,
             "system_prompt": self.system_prompt,
@@ -120,6 +133,7 @@ class Config:
             options=opts,
         )
         cfg.data_dir = data.get("data_dir", "~/.local/share/sven")
+        cfg.config_dir = data.get("config_dir", "~/.config/sven")
         cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
         cfg.system_prompt = data.get("system_prompt", "")
@@ -150,6 +164,7 @@ class Config:
 
     def write_to_file(self, path: Path) -> None:
         """Persist the configuration to disk."""
+        path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as fp:
             json.dump(self.to_dict(), fp, indent=4)
 
@@ -178,13 +193,15 @@ class Config:
         )
 
     @classmethod
-    def load(cls, config_path: str | Path = "config.json") -> "Config":
+    def load(cls, config_path: str | Path = None) -> "Config":
         """
         Full load pipeline:
           1. Load defaults from file (or create a new one).
           2. Merge profile overrides.
           3. Apply environment variable overrides.
         """
+        if config_path is None:
+            config_path = Path(os.path.expanduser("~/.config/sven")) / "sven.json"
         cfg = cls.from_json(Path(config_path))
         return cfg
 
