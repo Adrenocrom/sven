@@ -47,6 +47,8 @@ class Config:
     model: str = "gemma4:12b"
     system_prompt: str = "You are a Senior software developer called Sven."
     options: Options = field(default_factory=Options)
+    keep_recent_count: int = 5
+    max_messages: int= 20
 
     # ---------- Getters / Setters ----------
     @property
@@ -69,6 +71,26 @@ class Config:
             raise TypeError("system_prompt must be a string")
         self._system_prompt = value
 
+    @property
+    def keep_recent_count(self) -> str:
+        return self._keep_recent_count
+
+    @keep_recent_count.setter
+    def keep_recent_count(self, value: int) -> None:
+        if not isinstance(value, int):
+            raise TypeError("keep_recent_count must be a int")
+        self._keep_recent_count = value
+
+    @property
+    def max_messages(self) -> str:
+        return self._max_messages
+
+    @max_messages.setter
+    def max_messages(self, value: int) -> None:
+        if not isinstance(value, int):
+            raise TypeError("max_messages must be a int")
+        self._max_messages = value
+
     # options is an Options instance – no custom property needed
 
     # ---------- JSON helpers ----------
@@ -77,6 +99,8 @@ class Config:
             "model": self.model,
             "system_prompt": self.system_prompt,
             "options": self.options.to_dict(),
+            "keep_recent_count": self.keep_recent_count,
+            "max_messages": self.max_messages,
         }
 
     @classmethod
@@ -94,6 +118,8 @@ class Config:
                 "You are a Senior software developer called Sven.",
             ),
             options=options_obj,
+            keep_recent_count=data.get("keep_recent_count", 5),
+            max_messages=data.get("max_messages", 20)
         )
 
     @classmethod
@@ -145,6 +171,8 @@ class Config:
             model=model,
             system_prompt=system_prompt,
             options=options,
+            keep_recent_count=5,
+            max_messages=20
         )
 
     # ---------- Convenience API ----------

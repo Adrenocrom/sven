@@ -40,7 +40,7 @@ def load_tasks_from_json(filepath: str) -> List[Task]:
             else:
                 raise ValueError("JSON content must be a list of tasks.")
     except FileNotFoundError:
-        print(f"Error: File {filepath} not found.")
+        #print(f"Error: File {filepath} not found.")
         return []
     except Exception as e:
         print(f"Error loading tasks from {filepath}: {e}")
