@@ -69,7 +69,7 @@ def interactive_chat() -> None:
     # Limit history length to avoid unbounded growth
     readline.set_history_length(1000)
 
-    messages = load_history()
+    messages = load_history(config)
     messages.append({"role": "system", "content": config.system_prompt})
     while True:
         try:

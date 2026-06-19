@@ -1,6 +1,7 @@
 import json
+import os
 from pathlib import Path
-from sven import Config
+from sven.config import Config
 
 def load_history(config: Config) -> list[str]:
     try:

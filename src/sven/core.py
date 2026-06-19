@@ -89,7 +89,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
-            store_history(messages)
+            store_history(config, messages)
             break
 
 def summarize_conversation(
