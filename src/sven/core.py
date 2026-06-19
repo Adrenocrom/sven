@@ -7,7 +7,7 @@ import logging
 import json
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
-#from sven.history import store_history
+from sven.history import store_history
 
 task_functions = {
   'add_task': add_task,
@@ -89,7 +89,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
         messages = process_tool_calls(response.message, available_functions, messages)
 
         if not response.message.tool_calls:
-            #store_history(messages)
+            store_history(messages)
             break
 
 def summarize_conversation(

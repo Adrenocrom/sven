@@ -3,7 +3,7 @@ import readline
 import atexit
 from ollama import chat, Options
 
-# from sven.history import load_history
+from sven.history import load_history
 
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
@@ -57,7 +57,7 @@ def interactive_chat() -> None:
     config = Config.load()
     # Ensure the data directory exists
     os.makedirs(config.data_dir, exist_ok=True)
-    _history_file = os.path.join(config.data_dir, "chat_history")
+    _history_file = os.path.join(config.data_dir, "prompt_history")
     # Load existing history if present
     if os.path.exists(_history_file):
         try:
@@ -69,8 +69,7 @@ def interactive_chat() -> None:
     # Limit history length to avoid unbounded growth
     readline.set_history_length(1000)
 
-    # messages = load_history()
-    messages = []
+    messages = load_history()
     messages.append({"role": "system", "content": config.system_prompt})
     while True:
         try:
