@@ -15,6 +15,21 @@ task_functions = {
   'cancel_task': cancel_task,
   'complete_task': complete_task,
 }
+from sven.skills import SkillRegistry
+
+# Initialize the skill registry
+skill_registry = SkillRegistry()
+
+# Register all available skills
+# Note: In a production environment, you might use a plugin system or 
+# dynamic discovery to register these.
+def register_tools():
+    # This is currently a placeholder for manual registration if needed.
+    pass
+
+# The core logic now uses the skill registry instead of raw functions
+# where applicable in the tool calling loop.
+
 
 # Setup a standard logger
 logger = logging.getLogger(__name__)
