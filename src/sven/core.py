@@ -73,15 +73,20 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
             stream=True,
         )
         content = ""
-        print("\x1b[33m")
+        thought = ""
+        print("\x1b[38;2;10;140;75m")
         thinking = True
         tool_calls=None
         try:
             for chunk in stream:
                 if chunk.message.thinking is None and thinking:
-                    print("\x1b[21m\n      \x1b[0m\n")
+                    if thought:
+                        print("\x1b[0m\n")
+                    else:
+                        print("\x1b[0m")
                     thinking = False
                 if chunk.message.thinking is not None:
+                    thought += chunk.message.thinking
                     print(chunk.message.thinking, end="", flush=True)
                 if chunk.message.content is not None:
                     content += chunk.message.content
@@ -137,7 +142,7 @@ def summarize_conversation(
                 *old_context
                 ],
             stream=True)
-    print("\x1b[31m")
+    print("\x1b[38;2;10;140;10m")
     final_summary = ""
     try:
         for chunk in stream:
@@ -198,7 +203,9 @@ def process_tool_calls(
 
     for tc in message.tool_calls:
         func_name = tc.function.name
-        print(f"Calling tool: {func_name}")
+
+        #print(f"\n🛠\t\x1b[32m{func_name}\x1b[0m")
+        print(f"\n\t🔧  \x1b[32m{func_name}\x1b[0m")
         if func_name not in available_functions:
             logger.error(f"Tool '{func_name}' is not available.")
             continue
