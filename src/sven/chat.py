@@ -16,6 +16,7 @@ from sven.tools.edit import searchandreplace
 from sven.tools.edit import replacefile
 from sven.tools.edit import replaceline
 from sven.tools.python import compilefile, compilefiles
+from sven.tools.rust import cargoBuild
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 from sven.tools.grep import grep
 from sven.tools.find import find
@@ -37,6 +38,7 @@ available_functions = {
     "replaceline": replaceline,
     "compilefile": compilefile,
     "compilefiles": compilefiles,
+    "cargo build": cargoBuild,
     "add_task": add_task,
     "current_task": current_task,
     "list_tasks": list_tasks,
