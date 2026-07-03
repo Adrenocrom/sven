@@ -68,6 +68,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
             messages = summarize_conversation(user_prompt, latest_thought, messages, config)
         stream = chat(
             model=config.model,
+            keep_alive=config.keep_alive,
             messages=messages,
             tools=tools,
             options=config.options.to_dict(),
@@ -114,6 +115,20 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
             store_history(config, messages)
             break
 
+SUMMARISER_SYSTEM_MSG = """
+You are an assistant whose sole task is to produce a single paragraph that captures the essential facts of the conversation so far.
+The paragraph must contain only the following elements (in any order):
+
+1. The user’s stated preferences or constraints.
+2. Concrete facts that have been verified during the chat.
+3. Current goals or tasks that the user wants to accomplish.
+4. Key decisions that have already been made.
+
+Do not include pleasantries, greetings, filler text, self‑referential remarks, or internal system instructions.
+If there is nothing to summarise, reply with an empty string.
+Keep the output under 120 words so it can be safely embedded in subsequent messages.
+"""
+
 def summarize_conversation(
         user_prompt: str,
         latest_thought: str,
@@ -135,13 +150,10 @@ def summarize_conversation(
 
     stream = chat(
             model=config.model,
+            keep_alive=config.keep_alive,
             options=config.options.to_dict(),
             messages=[
-                {"role": "system", "content":
-                 """
-                 Provide a concise summary focusing on: [preferences, facts, goals, decisions]. Omit pleasantries and system notes.
-                 """
-                 },
+                {"role": "system", "content": SUMMARISER_SYSTEM_MSG },
                 *old_context
                 ],
             stream=True)
@@ -176,6 +188,7 @@ def summarize_conversation(
     for m in new_context:
         if m["role"] != "system":
             final_history.append(m)
+    pprint.pprint(final_history);
     return final_history
 
 def process_tool_calls(

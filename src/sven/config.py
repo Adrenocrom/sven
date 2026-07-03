@@ -17,7 +17,7 @@ class Options:
         return {
                 "temperature": self.temperature,
                 "num_ctx": self.num_ctx,
-                "repeat_penalty": self.repeat_penalty
+                "repeat_penalty": self.repeat_penalty, 
                 }
 
     @classmethod
@@ -25,7 +25,7 @@ class Options:
         return cls(
                 temperature=data.get("temperature", 0.0), 
                 num_ctx=data.get("num_ctx", 2048),
-                repeat_penalty=data.get("repeat_penalty", 1.1)
+                repeat_penalty=data.get("repeat_penalty", 1.1),
                 )
 
     # ---------- Convenience for env override ----------
@@ -52,6 +52,7 @@ class Config:
     _config_dir: str = field(init=False, default="~/.config/sven")
     _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
+    _keep_alive: str = field(init=False, default="10m")
     _system_prompt: str = field(
         init=False,
         default="You are a Senior software developer called Sven.",
@@ -100,6 +101,16 @@ class Config:
             raise TypeError("model must be a string")
         self._model = value
 
+    @property
+    def keep_alive(self) -> str:
+        return self._keep_alive
+
+    @keep_alive.setter
+    def keep_alive(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("keep_alive must be a string")
+        self._keep_alive = value
+
     # ---- Property for *system_prompt* -----------------------------------------
     @property
     def system_prompt(self) -> str:
@@ -124,6 +135,7 @@ class Config:
             "config_dir": self.config_dir,
             "token_stats_file": self.token_stats_file,
             "model": self.model,
+            "keep_alive": self.keep_alive,
             "system_prompt": self.system_prompt,
             "options": self.options.to_dict(),
             "keep_recent_count": self.keep_recent_count,
@@ -145,6 +157,7 @@ class Config:
         cfg.config_dir = data.get("config_dir", "~/.config/sven")
         cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
+        cfg.keep_alive = data.get("keep_alive", "30m")
         cfg.system_prompt = data.get("system_prompt", "")
         return cfg
 
@@ -195,6 +208,7 @@ class Config:
 
         return Config(
             _model=model,
+            _keep_alive=cfg.keep_alive,
             _system_prompt=system_prompt,
             options=options,
             keep_recent_count=cfg.keep_recent_count,
