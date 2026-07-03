@@ -159,7 +159,7 @@ def summarize_conversation(
                 break;
         print("\x1b[0m")
     except Exception as e:
-        print(f"\n\x1b[0m\x1b[1min Error: {e}\x1b[0m")
+        print(f"\n\x1b[0m\x1b[1m\x1b[31min Error: \x1b[0m{e}\x1b[0m")
         return [];
     final_history = [
             {"role": "system", "content": config.system_prompt},
