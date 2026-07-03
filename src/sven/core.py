@@ -61,10 +61,11 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
     global input_tokens, output_tokens          # <‑‑ add this line
     _load_token_counts(config)
     tools = list(available_functions.values())
+    latest_thought = ""
     messages.append({"role": "user", "content": user_prompt})
     while True:
         if(len(messages) > config.max_messages):
-            messages = summarize_conversation(user_prompt, messages, config)
+            messages = summarize_conversation(user_prompt, latest_thought, messages, config)
         stream = chat(
             model=config.model,
             messages=messages,
@@ -82,6 +83,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
                 if chunk.message.thinking is None and thinking:
                     if thought:
                         print("\x1b[0m\n")
+                        latest_thought = thought
                     else:
                         print("\x1b[0m")
                     thinking = False
@@ -114,6 +116,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
 
 def summarize_conversation(
         user_prompt: str,
+        latest_thought: str,
         messages: list, 
         config,
         ) -> list:
@@ -164,8 +167,10 @@ def summarize_conversation(
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
-            {"role": "user", "content": user_prompt}
+            {"role": "user", "content": user_prompt},
             ]
+    if latest_thought:
+        final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
 
     # Add the messages that were supposed to stay untouched (skipping any systemic ones)
     for m in new_context:
