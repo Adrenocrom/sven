@@ -169,8 +169,8 @@ def summarize_conversation(
             {"role": "assistant", "content": f"history summary: {final_summary}"},
             {"role": "user", "content": user_prompt},
             ]
-    if latest_thought:
-        final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
+    #if latest_thought:
+    #    final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
 
     # Add the messages that were supposed to stay untouched (skipping any systemic ones)
     for m in new_context:
