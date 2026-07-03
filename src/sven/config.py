@@ -10,14 +10,23 @@ from dataclasses import dataclass, field
 class Options:
     temperature: float = 0.0
     num_ctx: int = 2048
+    repeat_penalty: float = 1.1
 
     # ---------- JSON helpers ----------
     def to_dict(self) -> Dict[str, Any]:
-        return {"temperature": self.temperature, "num_ctx": self.num_ctx}
+        return {
+                "temperature": self.temperature,
+                "num_ctx": self.num_ctx,
+                "repeat_penalty": self.repeat_penalty
+                }
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Options":
-        return cls(temperature=data.get("temperature", 0.0), num_ctx=data.get("num_ctx", 2048))
+        return cls(
+                temperature=data.get("temperature", 0.0), 
+                num_ctx=data.get("num_ctx", 2048),
+                repeat_penalty=data.get("repeat_penalty", 1.1)
+                )
 
     # ---------- Convenience for env override ----------
     @staticmethod
