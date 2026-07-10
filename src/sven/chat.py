@@ -19,6 +19,14 @@ from sven.tools.python import compilefile, compilefiles
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 from sven.tools.grep import grep
 from sven.tools.find import find
+from sven.tools.memory_tools import (
+    add_skill,
+    list_skills,
+    get_skill,
+    update_skill,
+    delete_skill,
+    search_skills,
+)
 
 from sven.core import process_tool_calls
 from sven.core import send
@@ -44,6 +52,14 @@ available_functions = {
     "complete_task": complete_task,
     "grep": grep,
     "find": find,
+
+    # Skill / knowledge base
+    'add_skill': add_skill,
+    'list_skills': list_skills,
+    'get_skill': get_skill,
+    'update_skill': update_skill,
+    'delete_skill': delete_skill,
+    'search_skills': search_skills,
 }
 
 def interactive_chat() -> None:

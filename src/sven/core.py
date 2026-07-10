@@ -6,34 +6,7 @@ from ollama import chat, Options
 import logging
 import json
 
-from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
-from sven.tools.memory_tools import (
-    add_skill,
-    list_skills,
-    get_skill,
-    update_skill,
-    delete_skill,
-    search_skills,
-)
 from sven.history import store_history
-
-# All tools exposed to the LLM — merged from every subsystem.
-AVAILABLE_TOOLS = {
-    # Task queue
-    'add_task': add_task,
-    'list_tasks': list_tasks,
-    'cancel_task': cancel_task,
-    'complete_task': complete_task,
-
-    # Skill / knowledge base
-    'add_skill': add_skill,
-    'list_skills': list_skills,
-    'get_skill': get_skill,
-    'update_skill': update_skill,
-    'delete_skill': delete_skill,
-    'search_skills': search_skills,
-}
-
 
 # Setup a standard logger
 logger = logging.getLogger(__name__)
