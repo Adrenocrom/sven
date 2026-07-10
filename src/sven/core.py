@@ -7,28 +7,32 @@ import logging
 import json
 
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
+from sven.tools.memory_tools import (
+    add_skill,
+    list_skills,
+    get_skill,
+    update_skill,
+    delete_skill,
+    search_skills,
+)
 from sven.history import store_history
 
-task_functions = {
-  'add_task': add_task,
-  'list_tasks': list_tasks,
-  'cancel_task': cancel_task,
-  'complete_task': complete_task,
+# All tools exposed to the LLM — merged from every subsystem.
+AVAILABLE_TOOLS = {
+    # Task queue
+    'add_task': add_task,
+    'list_tasks': list_tasks,
+    'cancel_task': cancel_task,
+    'complete_task': complete_task,
+
+    # Skill / knowledge base
+    'add_skill': add_skill,
+    'list_skills': list_skills,
+    'get_skill': get_skill,
+    'update_skill': update_skill,
+    'delete_skill': delete_skill,
+    'search_skills': search_skills,
 }
-from sven.skills import SkillRegistry
-
-# Initialize the skill registry
-skill_registry = SkillRegistry()
-
-# Register all available skills
-# Note: In a production environment, you might use a plugin system or 
-# dynamic discovery to register these.
-def register_tools():
-    # This is currently a placeholder for manual registration if needed.
-    pass
-
-# The core logic now uses the skill registry instead of raw functions
-# where applicable in the tool calling loop.
 
 
 # Setup a standard logger
