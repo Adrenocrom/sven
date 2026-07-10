@@ -153,6 +153,10 @@ def summarize_conversation(
     except Exception as e:
         print(f"\n\x1b[0m\x1b[1m\x1b[31min Error: \x1b[0m{e}\x1b[0m")
         return [];
+
+    print("!!!!!!!!!! final")
+    print(final_summary)
+    print("final !!!!!!!!!!")
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
@@ -165,7 +169,7 @@ def summarize_conversation(
     for m in new_context:
         if m["role"] != "system":
             final_history.append(m)
-    pprint.pprint(final_history);
+    #pprint.pprint(final_history);
     return final_history
 
 def process_tool_calls(
