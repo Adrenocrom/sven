@@ -38,7 +38,7 @@ available_functions = {
     "replaceline": replaceline,
     "compilefile": compilefile,
     "compilefiles": compilefiles,
-    "cargo_build": cargoBuild,
+    "cargoBuild": cargoBuild,
     "add_task": add_task,
     "current_task": current_task,
     "list_tasks": list_tasks,

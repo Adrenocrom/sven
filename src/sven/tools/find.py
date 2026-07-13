@@ -31,11 +31,24 @@ def find(pattern: str, directory: str = ".", recursive: bool = True) -> dict:
 
         matches: List[str] = []
         if recursive:
-            for root, _, filenames in os.walk(directory):
+            for root, dirs, filenames in os.walk(directory):
+                # Remove 'target' and '.git' from the list that will be walked.
+                # This mutates `dirs` in place → those sub‑directories are skipped.
+                dirs[:] = [d for d in dirs if d not in {"target", ".git"}]
+
+                # Filter filenames against the supplied pattern
                 for filename in fnmatch.filter(filenames, pattern):
                     matches.append(os.path.join(root, filename))
+
+        # ------------------------------------------------------------------
+        # 2) Non‑recursive (just list the top‑level)
+        # ------------------------------------------------------------------
         else:
             for entry in os.listdir(directory):
+                # Skip directories that happen to be named 'target' or '.git'.
+                if entry in {"target", ".git"}:
+                    continue
+
                 full_path = os.path.join(directory, entry)
                 if os.path.isfile(full_path) and fnmatch.fnmatch(entry, pattern):
                     matches.append(full_path)
