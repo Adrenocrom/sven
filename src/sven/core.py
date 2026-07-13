@@ -6,30 +6,7 @@ from ollama import chat, Options
 import logging
 import json
 
-from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 from sven.history import store_history
-
-task_functions = {
-  'add_task': add_task,
-  'list_tasks': list_tasks,
-  'cancel_task': cancel_task,
-  'complete_task': complete_task,
-}
-from sven.skills import SkillRegistry
-
-# Initialize the skill registry
-skill_registry = SkillRegistry()
-
-# Register all available skills
-# Note: In a production environment, you might use a plugin system or 
-# dynamic discovery to register these.
-def register_tools():
-    # This is currently a placeholder for manual registration if needed.
-    pass
-
-# The core logic now uses the skill registry instead of raw functions
-# where applicable in the tool calling loop.
-
 
 # Setup a standard logger
 logger = logging.getLogger(__name__)
@@ -176,6 +153,10 @@ def summarize_conversation(
     except Exception as e:
         print(f"\n\x1b[0m\x1b[1m\x1b[31min Error: \x1b[0m{e}\x1b[0m")
         return [];
+
+    print("!!!!!!!!!! final")
+    print(final_summary)
+    print("final !!!!!!!!!!")
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
@@ -188,7 +169,7 @@ def summarize_conversation(
     for m in new_context:
         if m["role"] != "system":
             final_history.append(m)
-    pprint.pprint(final_history);
+    #pprint.pprint(final_history);
     return final_history
 
 def process_tool_calls(

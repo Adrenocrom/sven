@@ -1,21 +1,69 @@
-# Analysis of Token Growth and Contextual Filtering
+Based on my research of the OpenAI Agents SDK documentation and industry sources, here's a comprehensive breakdown:
 
-## Current Problem
-The program's context window grows linearly with every interaction because the `messages` list in `src/sven/chat.py` appends all user inputs, assistant responses, and raw tool outputs (which can be very large for operations like `read` or `webfetch`). This leads to a "token growth" issue where eventually the model will hit its context limit.
+## OpenAI's Definition (from their SDK)
 
-## Findings
-- **`src/sven/chat.py`**: The list `messages` is passed directly to the LLM in every loop iteration.
-- **`src/sven/core.py`**: Tool results are appended as strings. If a tool returns a large file or long web page, it consumes significant tokens immediately.
+> **"Agents are systems that independently accomplish tasks on your behalf."**
 
-## Proposed Solution: Contextual Filtering
-To implement contextual filtering and mitigate token growth, the following strategies should be applied in `src/sven/core.py`:
+Key characteristics per OpenAI:
+- Uses an LLM to manage workflow execution end-to-end
+- Interacts with external systems via tools (APIs, functions, apps)
+- Operates semi-autonomously within defined guardrails
+- Recognizes task completion or failure and gracefully halts or escalates when needed
 
-1. **Truncation / Summarization**: Instead of appending the raw content from a tool (e.g., `read`), only append relevant snippets or summarize the output if it exceeds a certain threshold.
-2. **Contextual Relevance**: Filter out intermediate "system" logs or redundant information that doesn't provide semantic value for subsequent turns.
-3. **Rolling Window / Buffer**: Implement a sliding window where only the last $N$ messages (or the most recent relevant history) are sent to the LLM, while keeping a summarized state of previous tasks.
-4. **Tool-Specific Filtering**: 
-   - For `read`, if the file is large, extract only lines surrounding the modified area or specific requested information.
-   - For `webfetch`, parse the HTML and send only the core text/content instead of the full raw response.
+## The 4 Core Components of an Agent
 
-## Recommendation
-Refactor `process_tool_calls` in `src/sven/core.py` to include a filtering layer that evaluates the size of `result.get("data")` and summarizes or clips it before adding it to the `messages` list.
+According to OpenAI's framework:
+
+| Component | Role |
+|-----------|------|
+| **Agent** | LLM + instructions, tools, guardrails, handoffs |
+| **Tools** | Functions the agent can call (APIs, code execution, MCP) |
+| **Guardrails** | Safety checks for input/output validation |
+| **Handoffs** | Ability to delegate to other agents |
+
+## Agent vs. Chatbot: The Key Difference
+
+| Feature | Chatbot/LLM | Agent |
+|---------|-------------|-------|
+| **Scope** | Single turn (question → answer) | Multi-step workflow |
+| **Autonomy** | Reactive (waits for input) | Proactive (breaks down goals) |
+| **Tool Use** | Optional | Essential |
+| **Memory** | Stateless per request | Persistent across steps |
+| **Error Handling** | Returns error message | Adapts strategy, retries, escalates |
+
+## The Execution Control Spectrum (L0–L4)
+
+From the 2025 AI Agent Index:
+
+- **L0**: No automation — human does everything
+- **L1**: Human-in-the-loop — agent suggests, human approves
+- **L2**: Semi-autonomous — agent acts with guardrails
+- **L3**: Autonomous with oversight — agent works independently, reports back
+- **L4**: Fully autonomous — agent completes complex tasks end-to-end
+
+## Academic/Industry Consensus Definition
+
+An AI Agent is:
+
+> A software system that uses a foundation model (typically an LLM) as its reasoning engine to perceive its environment, plan multi-step actions, use tools to interact with the world, and learn from feedback — all while pursuing a defined goal with minimal human intervention.
+
+## What Makes Something an "Agent"?
+
+1. **Goal-directed behavior** — Not just responding, but working toward an objective
+2. **Tool use** — Can call functions, access APIs, read/write files
+3. **Planning** — Breaks complex tasks into sub-tasks
+4. **Feedback loop** — Observes results and adjusts
+5. **Autonomy level** — Operates with varying degrees of human oversight
+
+## In My Case (Sven)
+
+I am an agent because I:
+- Have a goal (help you write code/solve problems)
+- Use tools (file system, web search, skill retrieval)
+- Plan multi-step actions (research → analyze → implement → verify)
+- Learn from feedback (your corrections, task completion)
+- Operate with guardrails (don't execute harmful commands, respect privacy)
+
+---
+
+**TL;DR**: An AI Agent = **LLM + Tools + Planning + Memory + Guardrails**. The LLM provides reasoning, tools provide capability, planning enables multi-step execution, memory provides continuity, and guardrails ensure safety.

@@ -204,12 +204,17 @@ class Config:
         if (v := os.getenv("SVEN_SYSTEM_PROMPT")):
             system_prompt = v
 
+        data_dir = cfg._data_dir
+        if (v := os.getenv("SVEN_DATA_DIR")):
+            data_dir = v
+
         options = Options._override_from_env(cfg.options)
 
         return Config(
             _model=model,
             _keep_alive=cfg.keep_alive,
             _system_prompt=system_prompt,
+            _data_dir=data_dir,
             options=options,
             keep_recent_count=cfg.keep_recent_count,
             max_messages=cfg.max_messages,

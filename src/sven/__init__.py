@@ -1,5 +1,4 @@
-"""
-Sven package – core utilities.
+"""Sven package – core utilities.
 
 The :class:`~sven.token_counter.TokenCounter` class is exposed at the top level for convenience.
 """
