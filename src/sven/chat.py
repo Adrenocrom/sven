@@ -21,6 +21,7 @@ from sven.tools.java import maven_clean_install
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 from sven.tools.grep import grep
 from sven.tools.find import find
+from sven.tools.git import diff
 from sven.tools.memory_tools import (
     add_skill,
     list_skills,
@@ -56,6 +57,7 @@ available_functions = {
     "complete_task": complete_task,
     "grep": grep,
     "find": find,
+    "diff": diff,
 
     # Skill / knowledge base
     'add_skill': add_skill,

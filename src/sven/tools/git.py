@@ -46,18 +46,16 @@ def commit(message: str) -> dict:
         return {"success": True, "message": "OK", "data": result.stdout}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
-def commit(message: str) -> dict:
-    """
-    does a git commit
 
-    args:
-        str: message
+def diff() -> dict:
+    """
+    Do a git diff
+
     return:
         None
     """
     try:
-        print(f"Commiting: {message}")
-        result = subprocess.run(["git", "commit", "-am", message], capture_output=True, text=True)
+        result = subprocess.run(["git", "diff"], capture_output=True, text=True)
         return {"success": True, "message": "OK", "data": result.stdout}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}
