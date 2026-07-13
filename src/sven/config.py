@@ -1,5 +1,4 @@
 import json
-import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -52,6 +51,7 @@ class Config:
     _config_dir: str = field(init=False, default="~/.config/sven")
     _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
+    _host: str = field(init=False, default="localhost")
     _keep_alive: str = field(init=False, default="10m")
     _system_prompt: str = field(
         init=False,
@@ -102,6 +102,16 @@ class Config:
         self._model = value
 
     @property
+    def host(self) -> str:
+        return self._host
+
+    @host.setter
+    def host(self, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("host must be a string")
+        self._host = value
+
+    @property
     def keep_alive(self) -> str:
         return self._keep_alive
 
@@ -135,6 +145,7 @@ class Config:
             "config_dir": self.config_dir,
             "token_stats_file": self.token_stats_file,
             "model": self.model,
+            "host": self.host,
             "keep_alive": self.keep_alive,
             "system_prompt": self.system_prompt,
             "options": self.options.to_dict(),
@@ -157,6 +168,7 @@ class Config:
         cfg.config_dir = data.get("config_dir", "~/.config/sven")
         cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
+        cfg.host = data.get("host", "localhost")
         cfg.keep_alive = data.get("keep_alive", "30m")
         cfg.system_prompt = data.get("system_prompt", "")
         return cfg
@@ -200,6 +212,10 @@ class Config:
         if (v := os.getenv("SVEN_MODEL")):
             model = v
 
+        host = cfg.host
+        if (v := os.getenv("SVEN_HOST")):
+            host = v
+
         system_prompt = cfg.system_prompt
         if (v := os.getenv("SVEN_SYSTEM_PROMPT")):
             system_prompt = v
@@ -212,6 +228,7 @@ class Config:
 
         return Config(
             _model=model,
+            _host=host,
             _keep_alive=cfg.keep_alive,
             _system_prompt=system_prompt,
             _data_dir=data_dir,

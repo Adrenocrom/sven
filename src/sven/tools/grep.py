@@ -1,10 +1,10 @@
 """Grep tool for Sven.
 
-Provides a simple grep implementation using Python's regex engine.
+Provides a wrapper around the system grep utility using the subprocess module.
 All functions return a dict with keys: success (bool), message (str), data (any).
 """
 
-import re
+import subprocess
 import sys
 from typing import List, Optional
 
@@ -20,26 +20,32 @@ def grep(pattern: str, files: Optional[List[str]] = None) -> dict:
         "data" contains the matching lines, each terminated with a newline.
     """
     try:
-        regex = re.compile(pattern)
-        matches: List[str] = []
-        if not files:
-            # Read from stdin
-            for line in sys.stdin:
-                if regex.search(line):
-                    matches.append(line)
+        # Construct the command: 'grep' + pattern + files (if any)
+        # We use -H to ensure filename is printed even if only one file is provided
+        command = ["grep", "-rni", pattern]
+        
+        if files:
+            command.extend(files)
+        
+        # Execute the subprocess
+        # stdin=sys.stdin allows the subprocess to read from stdin if no files are provided
+        result = subprocess.run(
+            command,
+            input=None, 
+            capture_output=True,
+            text=True,
+            stdin=sys.stdin if not files else None
+        )
+
+        # Grep exit codes: 0 = matches found, 1 = no matches, 2 = error
+        if result.returncode == 0:
+            return {"success": True, "message": "OK", "data": result.stdout}
+        elif result.returncode == 1:
+            return {"success": True, "message": "No matches found", "data": ""}
         else:
-            for fname in files:
-                try:
-                    with open(fname, "r", encoding="utf-8", errors="ignore") as f:
-                        for line in f:
-                            if regex.search(line):
-                                matches.append(f"{fname}:{line}")
-                except FileNotFoundError:
-                    return {"success": False, "message": f"File not found: {fname}", "data": None}
-                except Exception as e:
-                    return {"success": False, "message": str(e), "data": None}
-        return {"success": True, "message": "OK", "data": "".join(matches)}
-    except re.error as e:
-        return {"success": False, "message": f"Invalid regex: {e}", "data": None}
+            return {"success": False, "message": result.stderr.strip() or "Grep error", "data": None}
+
+    except FileNotFoundError:
+        return {"success": False, "message": "grep command not found on system", "data": None}
     except Exception as e:
         return {"success": False, "message": str(e), "data": None}

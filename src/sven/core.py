@@ -1,8 +1,6 @@
-import json
-import pprint
 from pathlib import Path
 from typing import Dict, List, Optional
-from ollama import chat, Options
+from ollama import chat, Options, Client
 import logging
 import json
 
@@ -15,6 +13,13 @@ writing_tools = ['replacefile', 'replaceline', 'touch']
 
 input_tokens: int = 0
 output_tokens: int = 0
+_ollama_client: Optional[Client] = None
+
+def get_ollama_client(config):
+    global _ollama_client
+    if _ollama_client is None:
+        _ollama_client = Client(host=config.host)
+    return _ollama_client
 
 def _load_token_counts(config):
     global input_tokens, output_tokens
@@ -40,10 +45,14 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
     tools = list(available_functions.values())
     latest_thought = ""
     messages.append({"role": "user", "content": user_prompt})
+    
+    client = get_ollama_client(config)
+
     while True:
         if(len(messages) > config.max_messages):
             messages = summarize_conversation(user_prompt, latest_thought, messages, config)
-        stream = chat(
+        
+        stream = client.chat(
             model=config.model,
             keep_alive=config.keep_alive,
             messages=messages,
@@ -125,7 +134,8 @@ def summarize_conversation(
     old_context = without_system[:-config.keep_recent_count]
     new_context = without_system[-config.keep_recent_count:]
 
-    stream = chat(
+    client = get_ollama_client(config)
+    stream = client.chat(
             model=config.model,
             keep_alive=config.keep_alive,
             options=config.options.to_dict(),
@@ -154,14 +164,13 @@ def summarize_conversation(
         print(f"\n\x1b[0m\x1b[1m\x1b[31min Error: \x1b[0m{e}\x1b[0m")
         return [];
 
-    print("!!!!!!!!!! final")
-    print(final_summary)
-    print("final !!!!!!!!!!")
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary}"},
             {"role": "user", "content": user_prompt},
             ]
+
+    #pprint.pprint(latest_thought)
     #if latest_thought:
     #    final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
 
