@@ -1,6 +1,6 @@
 import subprocess
 
-def cargoBuild() -> dict:
+def cargo_build() -> dict:
     """
     cargo build and output the compiler warnings and errors.
     return:
