@@ -3,7 +3,6 @@ import readline
 import atexit
 import pprint
 import copy
-from ollama import chat, Options
 
 from sven.history import load_history
 

@@ -168,7 +168,7 @@ def summarize_conversation(
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary.strip()}"},
-            {"role": "user", "content": user_prompt},
+            #{"role": "user", "content": user_prompt},
             ]
 
     for m in new_context:
