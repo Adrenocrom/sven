@@ -33,8 +33,9 @@ from sven.tools.memory_tools import (
 )
 
 from sven.core import process_tool_calls
-from sven.core import send
 from sven.config import Config
+from sven.agent import Agent
+from sven.core import send
 
 available_functions = {
     "getdatetime": getdatetime,
@@ -70,37 +71,32 @@ available_functions = {
 }
 
 def promptAgent(config, user_prompt) -> str:
-    # 1. Create a dedicated config for Greg
-    pa_config = copy.deepcopy(config)
-    
-    # 2. Give Greg a professional identity and a clear mission
-    pa_config.system_prompt = ("""
+    system_prompt = """
     You are Greg. You are a prompt building agent.
-    
-    1. Check for spelling and gammar.
+
+    1. Check for spelling and grammar.
     2. Keep the original meaning.
-    3. Check if some skills could be helpful and match with the suggest them.
-    4. Do not add explainations.
-    5. If its a bigger task, define a goal and maybe the first steps.
-            """)
+    3. Check if some skills could be helpful and suggest them.
+    4. Do not add explanations.
+    5. If it's a bigger task, define a goal and maybe the first steps.
+    """
 
-    pa_messages = []
-    # Use the NEW pa_config system prompt, not the original config one
-    pa_messages.append({"role": "system", "content": pa_config.system_prompt})
+    agent = Agent(
+        config=config,
+        system_prompt=system_prompt,
+        available_functions=available_functions,
+        name="Greg (Prompt Optimizer)",
+    )
 
-    # 3. Provide specific rewriting instructions
-    instruction = (f"""
-        Rewrite the original userprompt:
+    instruction = f"""
+        Rewrite the original user prompt:
         `
         {user_prompt}
         `
-        """)
+        """
 
-    # Pass pa_config to ensure the system prompt is used
-    send(instruction, pa_messages, available_functions, pa_config)
-    
-    new_user_prompt = pa_messages[-1]["content"]
-    print(f"\n\x1b[35mGreg (Prompt Optimizer)\x1b[0m: {new_user_prompt}")
+    new_user_prompt = agent.run(instruction)
+    print(f"\n\x1b[35m{agent.name}\x1b[0m: {new_user_prompt}")
     return new_user_prompt
 
 def interactive_chat() -> None:
