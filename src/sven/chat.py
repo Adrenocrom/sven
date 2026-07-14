@@ -76,9 +76,10 @@ def promptAgent(config, user_prompt) -> str:
 
     1. Check for spelling and grammar.
     2. Keep the original meaning.
-    3. Check if some skills could be helpful and suggest them.
-    4. Do not add explanations.
-    5. If it's a bigger task, define a goal and maybe the first steps.
+    3. check your skills with `list_skills`
+    4. Check if some skills could be helpful and suggest them.
+    5. Do not add explanations.
+    6. If it's a bigger task, define a goal and maybe the first steps.
     """
 
     agent = Agent(
