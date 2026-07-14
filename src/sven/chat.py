@@ -1,6 +1,8 @@
 import os
 import readline
 import atexit
+import pprint
+import copy
 from ollama import chat, Options
 
 from sven.history import load_history
@@ -68,6 +70,17 @@ available_functions = {
     'search_skills': search_skills,
 }
 
+def promptAgent(config, user_prompt)  -> str:
+    pa_config = copy.deepcopy(config)
+    pa_config.system_prompt = """You are Greg, you should improve userprompts. Your Output is used as userprompt for the next agent."""
+
+    pa_messages = []
+    pa_messages.append({"role": "system", "content": config.system_prompt})
+    send(f"Rework the following prompt and output one refined version: {user_prompt}", pa_messages, available_functions, config)
+    new_user_prompt = pa_messages[-1]["content"]
+    print(f"\x1b[34mGreg: \x1b[31m{new_user_prompt}\x1b[0m")
+    return new_user_prompt
+
 def interactive_chat() -> None:
     """Run an interactive LLM conversation in the terminal.
 
@@ -105,7 +118,9 @@ def interactive_chat() -> None:
         if not user_prompt.strip():
             continue  # ignore empty lines
         # input() automatically adds the line to readline history
-        send(user_prompt, messages, available_functions, config)
+        new_user_prompt = promptAgent(config, user_prompt)
+        
+        send(new_user_prompt, messages, available_functions, config)
 
 if __name__ == "__main__":
     interactive_chat()

@@ -168,15 +168,15 @@ def summarize_conversation(
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary.strip()}"},
-            #{"role": "user", "content": user_prompt},
+            {"role": "user", "content": user_prompt},
             ]
 
     for m in new_context:
         if m["role"] != "system":
             final_history.append(m)
 
-    if latest_thought:
-        final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
+    #if latest_thought:
+    #    final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
     return final_history
 
 def process_tool_calls(
