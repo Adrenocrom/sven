@@ -96,7 +96,8 @@ def promptAgent(config, user_prompt) -> str:
         """
 
     new_user_prompt = agent.run(instruction)
-    print(f"\n\x1b[35m{agent.name}\x1b[0m: {new_user_prompt}")
+    r, g, b = agent.rgb
+    print(f"\n\x1b[38;2;{r};{g};{b}m{agent.name}\x1b[0m: {new_user_prompt}")
     return new_user_prompt
 
 def interactive_chat() -> None:
