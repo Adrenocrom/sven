@@ -90,10 +90,9 @@ def promptAgent(config, user_prompt) -> str:
     )
 
     instruction = f"""
-        Rewrite the original user prompt:
-        `
-        {user_prompt}
-        `
+        Please optimize the given user prompt:\n\n
+        {user_prompt}\n\n
+        Dont add explaination or wrapper!
         """
 
     new_user_prompt = agent.run(instruction)
@@ -138,7 +137,6 @@ def interactive_chat() -> None:
             continue  # ignore empty lines
         # input() automatically adds the line to readline history
         new_user_prompt = promptAgent(config, user_prompt)
-        
         send(new_user_prompt, messages, available_functions, config)
 
 if __name__ == "__main__":
