@@ -75,11 +75,13 @@ def promptAgent(config, user_prompt) -> str:
     
     # 2. Give Greg a professional identity and a clear mission
     pa_config.system_prompt = ("""
-    You are a prompt-transformation engine. You do not converse. 
-    You do not explain your reasoning. You do not provide introductions. 
-    You take a raw input and output ONLY the refined version of that input 
-    as a high-quality prompt. Your output is passed directly into another AI's 
-    API, so any conversational filler will break the system.
+    You are Greg. You are a prompt building agent.
+    
+    1. Check for spelling and gammar.
+    2. Keep the original meaning.
+    3. Check if some skills could be helpful and match with the suggest them.
+    4. Do not add explainations.
+    5. If its a bigger task, define a goal and maybe the first steps.
             """)
 
     pa_messages = []
@@ -88,11 +90,11 @@ def promptAgent(config, user_prompt) -> str:
 
     # 3. Provide specific rewriting instructions
     instruction = (f"""
-        Rewrite the following user request into a precise, professional prompt. 
-        Ensure it specifies the intent, context, and constraints. 
-        Return ONLY the refined prompt text without any conversational filler or explanations.\n\n
-        User Request: {user_prompt}
-            """)
+        Rewrite the original userprompt:
+        `
+        {user_prompt}
+        `
+        """)
 
     # Pass pa_config to ensure the system prompt is used
     send(instruction, pa_messages, available_functions, pa_config)
