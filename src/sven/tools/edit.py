@@ -29,6 +29,7 @@ def searchandreplace(filepath: str, oldcontent: str, newcontent: str) -> dict:
 def replacefile(filepath: str, newcontent: str) -> dict:
     """
     Replace the whole file with new content.
+    If the directory does not exist, it is created.
     If the file does not exists, a new file is created.
     
     args:
@@ -38,6 +39,13 @@ def replacefile(filepath: str, newcontent: str) -> dict:
         dict: result of the operation
     """
     try:
+        # Get the directory path from the filepath
+        directory = os.path.dirname(filepath)
+        
+        # Create directory if it doesn't exist (and isn't the current root)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+            
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(newcontent)
         return {"success": True, "message": "OK", "data": None}
