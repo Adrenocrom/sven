@@ -4,26 +4,11 @@ Provides a wrapper around the system grep utility using the subprocess module.
 All functions return a dict with keys: success (bool), message (str), data (any).
 """
 
-import os
 import subprocess
 import sys
 from typing import List, Optional
 
-# Project root directory - all file operations must be within this directory
-PROJECT_ROOT = os.path.abspath(".")
-
-def validate_path(filepath: str) -> bool:
-    """
-    Validate that a file path is within the project directory.
-    
-    Args:
-        filepath: The file path to validate
-        
-    Returns:
-        bool: True if the path is within the project directory, False otherwise
-    """
-    abs_path = os.path.realpath(filepath)  # Resolve symlinks
-    return abs_path.startswith(PROJECT_ROOT)
+from sven.tools.security import validate_path
 
 def grep(pattern: str, files: Optional[List[str]] = None) -> dict:
     """Search for a regex pattern in given files or stdin.

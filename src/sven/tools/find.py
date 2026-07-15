@@ -5,25 +5,11 @@ paths matching a glob pattern. All functions return a dict with the keys:
 `success` (bool), `message` (str) and `data` (list of matching paths).
 """
 
-import os
 import fnmatch
+import os
 from typing import List
 
-# Project root directory - all file operations must be within this directory
-PROJECT_ROOT = os.path.abspath(".")
-
-def validate_path(filepath: str) -> bool:
-    """
-    Validate that a file path is within the project directory.
-    
-    Args:
-        filepath: The file path to validate
-        
-    Returns:
-        bool: True if the path is within the project directory, False otherwise
-    """
-    abs_path = os.path.realpath(filepath)  # Resolve symlinks
-    return abs_path.startswith(PROJECT_ROOT)
+from sven.tools.security import validate_paths
 
 def find(pattern: str, directory: str = ".", recursive: bool = True) -> dict:
     """Search for files whose names match *pattern*.
@@ -42,7 +28,7 @@ def find(pattern: str, directory: str = ".", recursive: bool = True) -> dict:
         `data` contains the list of matching file paths relative to *directory*.
     """
     # Validate directory is within project directory
-    if not validate_path(directory):
+    if not validate_paths(directory):
         return {"success": False, "message": f"Directory {directory} is outside the project directory.", "data": None}
     
     try:
