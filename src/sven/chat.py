@@ -19,6 +19,7 @@ from sven.tools.edit import replaceline
 from sven.tools.python import compilefile, compilefiles
 from sven.tools.rust import cargo_build
 from sven.tools.java import maven_clean_install
+from sven.tools.dotnet import dotnet_build
 from sven.tools.task import add_task, current_task, cancel_task, complete_task, list_tasks
 from sven.tools.grep import grep
 from sven.tools.find import find
@@ -52,6 +53,7 @@ available_functions = {
     "compilefiles": compilefiles,
     "cargo_build": cargo_build,
     "maven_clean_install": maven_clean_install,
+    "dotnet_build": dotnet_build,
     "add_task": add_task,
     "current_task": current_task,
     "list_tasks": list_tasks,
