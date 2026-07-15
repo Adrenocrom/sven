@@ -8,7 +8,7 @@ import subprocess
 import sys
 from typing import List, Optional
 
-from sven.tools.security import validate_path
+from sven.security import validate_path
 
 def grep(pattern: str, files: Optional[List[str]] = None) -> dict:
     """Search for a regex pattern in given files or stdin.

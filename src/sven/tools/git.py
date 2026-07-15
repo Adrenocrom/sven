@@ -1,6 +1,6 @@
 import subprocess
 
-from sven.tools.security import validate_path
+from sven.security import validate_path
 
 def add(filepath: str) -> dict:
     """

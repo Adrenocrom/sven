@@ -2,7 +2,7 @@ import subprocess
 import shutil
 
 from sven.tools import git
-from sven.tools.security import validate_path
+from sven.security import validate_path
 
 def searchandreplace(filepath: str, oldcontent: str, newcontent: str) -> dict:
     """

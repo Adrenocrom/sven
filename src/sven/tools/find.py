@@ -9,7 +9,7 @@ import fnmatch
 import os
 from typing import List
 
-from sven.tools.security import validate_paths
+from sven.security import validate_paths
 
 def find(pattern: str, directory: str = ".", recursive: bool = True) -> dict:
     """Search for files whose names match *pattern*.

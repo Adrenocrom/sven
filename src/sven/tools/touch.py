@@ -3,7 +3,7 @@ import subprocess
 import subprocess
 
 from sven.tools import git
-from sven.tools.security import validate_path
+from sven.security import validate_path
 
 def touch(filepath: str) -> dict:
     """
