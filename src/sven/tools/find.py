@@ -9,6 +9,22 @@ import os
 import fnmatch
 from typing import List
 
+# Project root directory - all file operations must be within this directory
+PROJECT_ROOT = os.path.abspath(".")
+
+def validate_path(filepath: str) -> bool:
+    """
+    Validate that a file path is within the project directory.
+    
+    Args:
+        filepath: The file path to validate
+        
+    Returns:
+        bool: True if the path is within the project directory, False otherwise
+    """
+    abs_path = os.path.realpath(filepath)  # Resolve symlinks
+    return abs_path.startswith(PROJECT_ROOT)
+
 def find(pattern: str, directory: str = ".", recursive: bool = True) -> dict:
     """Search for files whose names match *pattern*.
 
@@ -25,6 +41,10 @@ def find(pattern: str, directory: str = ".", recursive: bool = True) -> dict:
         }
         `data` contains the list of matching file paths relative to *directory*.
     """
+    # Validate directory is within project directory
+    if not validate_path(directory):
+        return {"success": False, "message": f"Directory {directory} is outside the project directory.", "data": None}
+    
     try:
         if not os.path.isdir(directory):
             return {"success": False, "message": f"Not a directory: {directory}", "data": None}

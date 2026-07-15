@@ -1,5 +1,23 @@
 import subprocess
 
+import os
+
+# Project root directory - all file operations must be within this directory
+PROJECT_ROOT = os.path.abspath(".")
+
+def validate_path(filepath: str) -> bool:
+    """
+    Validate that a file path is within the project directory.
+    
+    Args:
+        filepath: The file path to validate
+        
+    Returns:
+        bool: True if the path is within the project directory, False otherwise
+    """
+    abs_path = os.path.realpath(filepath)  # Resolve symlinks
+    return abs_path.startswith(PROJECT_ROOT)
+
 def read(filepath: str, offset: int = 0, length: int = 1000) -> dict:
     """
     Read a portion of the content of a file based on line numbers (line-offset based).
@@ -14,6 +32,10 @@ def read(filepath: str, offset: int = 0, length: int = 1000) -> dict:
     returns:
         dict: A dictionary containing the success status, message, and data.
     """
+    # Validate path is within project directory
+    if not validate_path(filepath):
+        return {"success": False, "message": f"Path {filepath} is outside the project directory.", "data": None}
+    
     try:
         with open(filepath, 'r', encoding='utf-8') as file:
             # Treat offset=0 as starting from line 1 for user convenience

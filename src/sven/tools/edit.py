@@ -4,6 +4,22 @@ import os
 
 from sven.tools import git
 
+# Project root directory - all file operations must be within this directory
+PROJECT_ROOT = os.path.abspath(".")
+
+def validate_path(filepath: str) -> bool:
+    """
+    Validate that a file path is within the project directory.
+    
+    Args:
+        filepath: The file path to validate
+        
+    Returns:
+        bool: True if the path is within the project directory, False otherwise
+    """
+    abs_path = os.path.abspath(filepath)
+    return abs_path.startswith(PROJECT_ROOT)
+
 def searchandreplace(filepath: str, oldcontent: str, newcontent: str) -> dict:
     """
     replaces old content with new content
@@ -15,6 +31,10 @@ def searchandreplace(filepath: str, oldcontent: str, newcontent: str) -> dict:
     return:
         dict: result of the operation
     """
+    # Validate path is within project directory
+    if not validate_path(filepath):
+        return {"success": False, "message": f"Path {filepath} is outside the project directory.", "data": None}
+    
     try:
         with open(filepath, 'r', encoding='utf-8') as file:
             data = file.read()
@@ -38,6 +58,10 @@ def replacefile(filepath: str, newcontent: str) -> dict:
     return:
         dict: result of the operation
     """
+    # Validate path is within project directory
+    if not validate_path(filepath):
+        return {"success": False, "message": f"Path {filepath} is outside the project directory.", "data": None}
+    
     try:
         # Get the directory path from the filepath
         directory = os.path.dirname(filepath)
@@ -64,6 +88,10 @@ def replaceline(filepath: str, linenumber: int, newcontent: str) -> dict:
     return:
         dict: result of the operation
     """
+    # Validate path is within project directory
+    if not validate_path(filepath):
+        return {"success": False, "message": f"Path {filepath} is outside the project directory.", "data": None}
+    
     try:
         # 1. Read all lines into memory
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -98,6 +126,12 @@ def move_file(source: str, destination: str) -> dict:
     return:
         dict: result of the operation
     """
+    # Validate both paths are within project directory
+    if not validate_path(source):
+        return {"success": False, "message": f"Source path {source} is outside the project directory.", "data": None}
+    if not validate_path(destination):
+        return {"success": False, "message": f"Destination path {destination} is outside the project directory.", "data": None}
+    
     try:
         shutil.move(source, destination)
         return {"success": True, "message": "OK", "data": None}
@@ -114,6 +148,12 @@ def rename_file(old_name: str, new_name: str) -> dict:
     return:
         dict: result of the operation
     """
+    # Validate both paths are within project directory
+    if not validate_path(old_name):
+        return {"success": False, "message": f"Old path {old_name} is outside the project directory.", "data": None}
+    if not validate_path(new_name):
+        return {"success": False, "message": f"New path {new_name} is outside the project directory.", "data": None}
+    
     try:
         os.rename(old_name, new_name)
         return {"success": True, "message": "OK", "data": None}
@@ -130,6 +170,10 @@ def append_to_file(filepath: str, content: str) -> dict:
     return:
         dict: result of the operation
     """
+    # Validate path is within project directory
+    if not validate_path(filepath):
+        return {"success": False, "message": f"Path {filepath} is outside the project directory.", "data": None}
+    
     try:
         with open(filepath, 'a', encoding='utf-8') as f:
             f.write(content)
