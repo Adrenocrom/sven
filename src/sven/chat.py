@@ -131,9 +131,13 @@ def interactive_chat() -> None:
 
     messages = load_history(config)
     messages.append({"role": "system", "content": config.system_prompt})
+
+    BLUE = "\x01\x1b[34m\x02"
+    RESET  = "\x01\x1b[0m\x02"
     while True:
         try:
-            user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
+            user_prompt = input(f"{BLUE}User{RESET}: ")
+            #user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
         except EOFError:
             print("\n[Conversation ended]")
             break
