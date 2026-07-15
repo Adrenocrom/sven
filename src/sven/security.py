@@ -53,8 +53,6 @@ def validate_path(filepath: str) -> bool:
             f"Bypass rejected by user. Refusing to operate on path outside project root: {filepath}"
         )
 
-    print(abs_path)
-    print(normalized_root)
     return True
 
 

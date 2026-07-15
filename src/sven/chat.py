@@ -6,6 +6,9 @@ import copy
 
 from sven.history import load_history
 
+from sven.color import BLUE
+from sven.color import RESET
+
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
 from sven.tools.webfetch import webfetch
@@ -132,11 +135,9 @@ def interactive_chat() -> None:
     messages = load_history(config)
     messages.append({"role": "system", "content": config.system_prompt})
 
-    BLUE = "\x01\x1b[34m\x02"
-    RESET  = "\x01\x1b[0m\x02"
     while True:
         try:
-            user_prompt = input(f"{BLUE}User{RESET}: ")
+            user_prompt = input(f"\n{BLUE}User{RESET}: ")
             #user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
         except EOFError:
             print("\n[Conversation ended]")
