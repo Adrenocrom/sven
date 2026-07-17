@@ -25,7 +25,7 @@ def websearch(query: str) -> dict:
     """
     try:
         result = subprocess.run(
-            ["py", "-m", "ddgr", "--noprompt", query],
+            ["ddgr", "--noprompt", query],
             capture_output=True,
             text=True
         )
