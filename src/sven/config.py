@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
+from platformdirs import user_config_dir 
 
 from dataclasses import dataclass, field
 
@@ -47,8 +48,9 @@ class Config:
     basic type checks, while the dataclass keeps the nice syntax for defaults.
     """
 
-    _data_dir: str = field(init=False, default="~/.local/share/sven")
-    _config_dir: str = field(init=False, default="~/.config/sven")
+    _data_dir: str = field(init=False, default=user_config_dir("Sven") )
+    _config_dir: str = field(init=False, default=user_config_dir("Sven") )
+
     _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
     _host: str = field(init=False, default="localhost")
@@ -164,8 +166,14 @@ class Config:
             max_messages=data.get("max_messages", 20),
             options=opts,
         )
-        cfg.data_dir = data.get("data_dir", "~/.local/share/sven")
-        cfg.config_dir = data.get("config_dir", "~/.config/sven")
+        #cfg.data_dir = data.get("data_dir", "C:/Users/henrik/AppData/Roaming/Sven/.local/share")
+        #cfg.config_dir = data.get("config_dir", "C:/Users/henrik/AppData/Roaming/Sven/.config")
+        cfg.data_dir = user_config_dir("Sven")  # e.g., ~/.local/YourAppName or %APPDATA%\YourAppName
+        cfg.config_dir = user_config_dir("Sven")  # e.g., ~/.config/YourAppName or %APPDATA%\YourAppName
+
+        print ("cfg.data_dir: " + cfg.data_dir)
+        print ("cfg.config_dir: " + cfg.config_dir)
+
         cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
         cfg.host = data.get("host", "localhost")
@@ -246,7 +254,8 @@ class Config:
           3. Apply environment variable overrides.
         """
         if config_path is None:
-            config_path = Path(os.path.expanduser("~/.config/sven")) / "sven.json"
+            config_path = Path(os.path.expanduser(cls._config_dir)) / "sven.json"
+            print ("config_path: ", config_path)
         cfg = cls.from_json(Path(config_path))
         return cfg
 
