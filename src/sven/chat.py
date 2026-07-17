@@ -1,8 +1,9 @@
 import os
-import readline
-import atexit
 import pprint
 import copy
+
+from prompt_toolkit import PromptSession
+from prompt_toolkit.history import FileHistory
 
 from sven.history import load_history
 
@@ -76,7 +77,8 @@ available_functions = {
 }
 
 def promptAgent(config, user_prompt) -> str:
-    system_prompt = """You are Greg, a Prompt Optimization Agent. Your goal is to improve user prompts for clarity, grammar, and effectiveness while preserving their original intent.
+    system_prompt = """You are Greg, a Prompt Optimization Agent. Your goal is to improve user prompts for clarity, grammar, and effectiveness while preserving their
+original intent.
     ## Rules
     1. Fix spelling and grammar errors.
     2. Enhance structure and clarity without changing the core meaning.
@@ -112,7 +114,7 @@ def promptAgent(config, user_prompt) -> str:
 def interactive_chat() -> None:
     """Run an interactive LLM conversation in the terminal.
 
-    Prompts are stored in a readline history file located under the directory
+    Prompts are stored in a history file located under the directory
     defined by ``Config.data_dir`` (default ``~/.local/share/sven``). This enables
     the up/down arrow keys to toggle through previous prompts, persisting across
     sessions.
@@ -121,33 +123,30 @@ def interactive_chat() -> None:
     # Ensure the data directory exists
     os.makedirs(config.data_dir, exist_ok=True)
     _history_file = os.path.join(config.data_dir, "prompt_history")
-    # Load existing history if present
-    if os.path.exists(_history_file):
-        try:
-            readline.read_history_file(_history_file)
-        except Exception:
-            pass
-    # Save history on program exit
-    atexit.register(lambda: readline.write_history_file(_history_file))
-    # Limit history length to avoid unbounded growth
-    readline.set_history_length(1000)
+
+    # Setup prompt_toolkit with automatic file history handling
+    # FileHistory automatically loads existing history and appends new entries.
+    history = FileHistory(_history_file)
+    session = PromptSession(history=history)
 
     messages = load_history(config)
     messages.append({"role": "system", "content": config.system_prompt})
 
     while True:
         try:
-            user_prompt = input(f"\n{BLUE}User{RESET}: ")
-            #user_prompt = input("\n\x1b[34mUser\x1b[0m: ")
+            # Use prompt_toolkit's session.prompt() instead of input()
+            # It automatically handles up/down arrow keys and saves to the file
+            user_prompt = session.prompt(f"\n{BLUE}User{RESET}: ")
         except EOFError:
             print("\n[Conversation ended]")
             break
         except KeyboardInterrupt:
             print("\n[Conversation ended]")
             break
+
         if not user_prompt.strip():
             continue  # ignore empty lines
-        # input() automatically adds the line to readline history
+
         new_user_prompt = promptAgent(config, user_prompt)
         send(new_user_prompt, messages, available_functions, config)
 

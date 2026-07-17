@@ -47,8 +47,8 @@ class Config:
     basic type checks, while the dataclass keeps the nice syntax for defaults.
     """
 
-    _data_dir: str = field(init=False, default="~/.local/share/sven")
-    _config_dir: str = field(init=False, default="~/.config/sven")
+    _data_dir: str = field(init=False, default="C:/Users/henrik/AppData/Roaming/Sven/.local/share")
+    _config_dir: str = field(init=False, default="C:/Users/henrik/AppData/Roaming/Sven/.config")
     _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
     _host: str = field(init=False, default="localhost")
@@ -164,8 +164,8 @@ class Config:
             max_messages=data.get("max_messages", 20),
             options=opts,
         )
-        cfg.data_dir = data.get("data_dir", "~/.local/share/sven")
-        cfg.config_dir = data.get("config_dir", "~/.config/sven")
+        cfg.data_dir = data.get("data_dir", "C:/Users/henrik/AppData/Roaming/Sven/.local/share")
+        cfg.config_dir = data.get("config_dir", "C:/Users/henrik/AppData/Roaming/Sven/.config")
         cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
         cfg.host = data.get("host", "localhost")
@@ -246,7 +246,7 @@ class Config:
           3. Apply environment variable overrides.
         """
         if config_path is None:
-            config_path = Path(os.path.expanduser("~/.config/sven")) / "sven.json"
+            config_path = Path(os.path.expanduser("C:/Users/henrik/AppData/Roaming/Sven/.config")) / "sven.json"
         cfg = cls.from_json(Path(config_path))
         return cfg
 
