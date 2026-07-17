@@ -48,8 +48,8 @@ class Config:
     basic type checks, while the dataclass keeps the nice syntax for defaults.
     """
 
-    _data_dir: str = field(init=False, default=user_config_dir("Sven") )
-    _config_dir: str = field(init=False, default=user_config_dir("Sven") )
+    _data_dir: str = field(init=False, default=user_config_dir("sven") )
+    _config_dir: str = field(init=False, default=user_config_dir("sven") )
 
     _token_stats_file: str = field(init=False, default="tokens.json")
     _model: str = field(init=False, default="gemma4:12b")
@@ -166,10 +166,10 @@ class Config:
             max_messages=data.get("max_messages", 20),
             options=opts,
         )
-        #cfg.data_dir = data.get("data_dir", "C:/Users/henrik/AppData/Roaming/Sven/.local/share")
-        #cfg.config_dir = data.get("config_dir", "C:/Users/henrik/AppData/Roaming/Sven/.config")
-        cfg.data_dir = user_config_dir("Sven")  # e.g., ~/.local/YourAppName or %APPDATA%\YourAppName
-        cfg.config_dir = user_config_dir("Sven")  # e.g., ~/.config/YourAppName or %APPDATA%\YourAppName
+        #cfg.data_dir = data.get("data_dir", "C:/Users/henrik/AppData/Roaming/sven/.local/share")
+        #cfg.config_dir = data.get("config_dir", "C:/Users/henrik/AppData/Roaming/sven/.config")
+        cfg.data_dir = user_config_dir("sven")  # e.g., ~/.local/YourAppName or %APPDATA%\YourAppName
+        cfg.config_dir = user_config_dir("sven")  # e.g., ~/.config/YourAppName or %APPDATA%\YourAppName
 
         print ("cfg.data_dir: " + cfg.data_dir)
         print ("cfg.config_dir: " + cfg.config_dir)
