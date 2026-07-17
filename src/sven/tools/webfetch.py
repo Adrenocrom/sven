@@ -8,6 +8,12 @@ import re
 def webfetch(url: str) -> dict:
     """
     Fetch content from a URL using curl and convert HTML to Markdown using pandoc.
+
+    Args:
+        url (str): URL starting with http:// or https://
+
+    Returns:
+        dict: Result information
     """
 
     if not re.match(r"^https?://", url):
