@@ -171,9 +171,6 @@ class Config:
         cfg.data_dir = user_config_dir("sven")  # e.g., ~/.local/YourAppName or %APPDATA%\YourAppName
         cfg.config_dir = user_config_dir("sven")  # e.g., ~/.config/YourAppName or %APPDATA%\YourAppName
 
-        print ("cfg.data_dir: " + cfg.data_dir)
-        print ("cfg.config_dir: " + cfg.config_dir)
-
         cfg.token_stats_file = data.get("token_stats_file", "tokens.json")
         cfg.model = data.get("model", "gemma4:12b")
         cfg.host = data.get("host", "localhost")
@@ -255,7 +252,6 @@ class Config:
         """
         if config_path is None:
             config_path = Path(os.path.expanduser(cls._config_dir)) / "sven.json"
-            print ("config_path: ", config_path)
         cfg = cls.from_json(Path(config_path))
         return cfg
 

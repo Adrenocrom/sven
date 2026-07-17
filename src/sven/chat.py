@@ -4,6 +4,7 @@ import copy
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
+from prompt_toolkit.formatted_text import ANSI
 
 from sven.history import load_history
 
@@ -136,7 +137,7 @@ def interactive_chat() -> None:
         try:
             # Use prompt_toolkit's session.prompt() instead of input()
             # It automatically handles up/down arrow keys and saves to the file
-            user_prompt = session.prompt(f"\n{BLUE}User{RESET}: ")
+            user_prompt = session.prompt(ANSI(f"\n{BLUE}User{RESET}: "))
         except EOFError:
             print("\n[Conversation ended]")
             break

@@ -1,5 +1,5 @@
-BLUE = "\x01\x1b[34m\x02"
-RESET  = "\x01\x1b[0m\x02"
+BLUE = "\x1b[34m"
+RESET  = "\x1b[0m"
 
 ANSI_FG = {
     "BLACK"   : ("\x1b[30m",   (0x00, 0x00, 0x00)),      # Black
