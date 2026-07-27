@@ -148,8 +148,8 @@ def interactive_chat() -> None:
         if not user_prompt.strip():
             continue  # ignore empty lines
 
-        new_user_prompt = promptAgent(config, user_prompt)
-        send(new_user_prompt, messages, available_functions, config)
+        #new_user_prompt = promptAgent(config, user_prompt)
+        send(user_prompt, messages, available_functions, config)
 
 if __name__ == "__main__":
     interactive_chat()
