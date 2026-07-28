@@ -1,5 +1,5 @@
+from typing import Dict, List, Optional, Any
 from pathlib import Path
-from typing import Dict, List, Optional
 from ollama import chat, Options, Client
 import logging
 import json
@@ -40,19 +40,19 @@ def _save_token_counts(config):
     with open(token_file, "w") as f:
         json.dump({"input_tokens": input_tokens, "output_tokens": output_tokens}, f)
 
-def send(user_prompt: str, messages: list, available_functions: Dict[str, any], config) ->  list:
-    global input_tokens, output_tokens          # <‑‑ add this line
+def send(user_prompt: str, messages: list, available_functions: Dict[str, Any], config) -> list:
+    global input_tokens, output_tokens
     _load_token_counts(config)
     tools = list(available_functions.values())
     latest_thought = ""
     messages.append({"role": "user", "content": user_prompt})
-    
+
     client = get_ollama_client(config)
 
     while True:
-        if(len(messages) > config.max_messages):
+        if len(messages) > config.max_messages:
             messages = summarize_conversation(user_prompt, latest_thought, messages, config)
-        
+
         stream = client.chat(
             model=config.model,
             keep_alive=config.keep_alive,
@@ -65,9 +65,11 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
         thought = ""
         print("\x1b[38;2;10;140;75m")
         thinking = True
-        tool_calls=None
+        tool_calls = None
+        response = None
         try:
             for chunk in stream:
+                response = chunk
                 if chunk.message.thinking is None and thinking:
                     if thought:
                         print("\x1b[0m\n")
@@ -88,11 +90,20 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
                     output_tokens += chunk.eval_count
                     _save_token_counts(config)
                     print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
-                    response = chunk
-                    break;
+                    break
+        except KeyboardInterrupt:
+            print("\n\x1b[1mStopping...\x1b[0m")
+            try:
+                stream.close()
+            except Exception:
+                pass
+            return messages
         except Exception as e:
-            print(f"\n\x1b[1min Error: {e}\x1b[0m")
-            break;
+            print(f"\n\x1b[1mError: {e}\x1b[0m")
+            return messages
+
+        if response is None:
+            return messages
 
         response.message.content = content
         response.message.tool_calls = tool_calls
@@ -101,6 +112,8 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, any], 
         if not response.message.tool_calls:
             store_history(config, messages)
             break
+
+    return messages
 
 SUMMARISER_SYSTEM_MSG = """
 You are an assistant whose sole task is to produce a single paragraph that captures the essential facts of the conversation so far.
@@ -119,7 +132,7 @@ Keep the output under 120 words so it can be safely embedded in subsequent messa
 def summarize_conversation(
         user_prompt: str,
         latest_thought: str,
-        messages: list, 
+        messages: list,
         config,
         ) -> list:
     """
@@ -127,10 +140,10 @@ def summarize_conversation(
     "Focus exclusively on user preferences, established facts, current goals, and key decisions. "
     "Omit all conversational filler, pleasantries, and internal system instructions."
     """
-    global input_tokens, output_tokens          # <‑‑ add this line
+    global input_tokens, output_tokens
     without_system = [m for m in messages if m["role"] != "system"]
     if len(without_system) <= config.keep_recent_count:
-        return messages;
+        return messages
 
     old_context = without_system[:-config.keep_recent_count]
     new_context = without_system[-config.keep_recent_count:]
@@ -141,7 +154,7 @@ def summarize_conversation(
             keep_alive=config.keep_alive,
             options=config.options.to_dict(),
             messages=[
-                {"role": "system", "content": SUMMARISER_SYSTEM_MSG },
+                {"role": "system", "content": SUMMARISER_SYSTEM_MSG},
                 *old_context
                 ],
             stream=True)
@@ -159,24 +172,21 @@ def summarize_conversation(
                 output_tokens += chunk.eval_count
                 _save_token_counts(config)
                 print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
-                break;
+                break
         print("\x1b[0m")
     except Exception as e:
-        print(f"\n\x1b[0m\x1b[1m\x1b[31min Error: \x1b[0m{e}\x1b[0m")
-        return [];
+        print(f"\n\x1b[0m\x1b[1m\x1b[31mError: \x1b[0m{e}\x1b[0m")
+        return messages
 
     final_history = [
             {"role": "system", "content": config.system_prompt},
             {"role": "assistant", "content": f"history summary: {final_summary.strip()}"},
-            #{"role": "user", "content": user_prompt},
             ]
 
     for m in new_context:
         if m["role"] != "system":
             final_history.append(m)
 
-    #if latest_thought:
-    #    final_history.append({"role": "assistant", "content": f"latest thought: {latest_thought}"})
     return final_history
 
 def process_tool_calls(
@@ -253,3 +263,180 @@ def process_tool_calls(
                 "content": str(content)
                 })
     return history
+
+def get_model_info_summary(config, model_name: str) -> dict:
+    """
+    Return a concise summary of model information.
+    """
+    return {
+        "name": model_name,
+        "exists": model_exists(config, model_name),
+        "running": is_model_running(config, model_name),
+        "size": get_model_size(config, model_name),
+        "parameter_size": get_model_parameter_size(config, model_name),
+        "quantization_level": get_model_quantization_level(config, model_name),
+        "families": get_model_families(config, model_name),
+        "capabilities": get_model_capabilities(config, model_name),
+    }
+
+def get_server_info(config) -> dict:
+    """
+    Return basic information about the Ollama server.
+    """
+    return {
+        "version": version(config),
+        "base_url": getattr(config, "base_url", None),
+        "default_model": get_default_model(config),
+    }
+
+def get_token_counts(config) -> dict:
+    """
+    Return the current input/output token counts.
+    """
+    _load_token_counts(config)
+    return {"input_tokens": input_tokens, "output_tokens": output_tokens}
+
+def set_token_counts(config, input_count: int, output_count: int):
+    """
+    Set the input/output token counts directly.
+    """
+    global input_tokens, output_tokens
+    input_tokens = input_count
+    output_tokens = output_count
+    _save_token_counts(config)
+
+def reset_token_counts(config):
+    """
+    Reset the input/output token counts to zero.
+    """
+    set_token_counts(config, 0, 0)
+
+def increment_token_counts(config, input_count: int = 0, output_count: int = 0):
+    """
+    Increment the input/output token counts.
+    """
+    _load_token_counts(config)
+    set_token_counts(config, input_tokens + input_count, output_tokens + output_count)
+
+def model_exists(config, model_name: str) -> bool:
+    """
+    Check if a model exists on the Ollama server.
+    """
+    try:
+        client = get_ollama_client(config)
+        models = client.list().get("models", [])
+        return any(m.get("model") == model_name or m.get("name") == model_name for m in models)
+    except Exception as e:
+        logger.error(f"Failed to check if model '{model_name}' exists: {e}")
+        return False
+
+def is_model_running(config, model_name: str) -> bool:
+    """
+    Check if a model is currently running on the Ollama server.
+    """
+    try:
+        client = get_ollama_client(config)
+        running = client.ps().get("models", [])
+        return any(m.get("model") == model_name or m.get("name") == model_name for m in running)
+    except Exception as e:
+        logger.error(f"Failed to check if model '{model_name}' is running: {e}")
+        return False
+
+def get_model_size(config, model_name: str) -> Optional[int]:
+    """
+    Return the size of a model in bytes.
+    """
+    try:
+        client = get_ollama_client(config)
+        models = client.list().get("models", [])
+        for m in models:
+            if m.get("model") == model_name or m.get("name") == model_name:
+                return m.get("size")
+        return None
+    except Exception as e:
+        logger.error(f"Failed to get size for model '{model_name}': {e}")
+        return None
+
+def get_model_parameter_size(config, model_name: str) -> Optional[str]:
+    """
+    Return the parameter size of a model (e.g. '7B').
+    """
+    try:
+        client = get_ollama_client(config)
+        models = client.list().get("models", [])
+        for m in models:
+            if m.get("model") == model_name or m.get("name") == model_name:
+                return m.get("parameter_size")
+        return None
+    except Exception as e:
+        logger.error(f"Failed to get parameter size for model '{model_name}': {e}")
+        return None
+
+def get_model_quantization_level(config, model_name: str) -> Optional[str]:
+    """
+    Return the quantization level of a model.
+    """
+    try:
+        client = get_ollama_client(config)
+        models = client.list().get("models", [])
+        for m in models:
+            if m.get("model") == model_name or m.get("name") == model_name:
+                return m.get("quantization_level")
+        return None
+    except Exception as e:
+        logger.error(f"Failed to get quantization level for model '{model_name}': {e}")
+        return None
+
+def get_model_families(config, model_name: str) -> List[str]:
+    """
+    Return the families of a model.
+    """
+    try:
+        client = get_ollama_client(config)
+        models = client.list().get("models", [])
+        for m in models:
+            if m.get("model") == model_name or m.get("name") == model_name:
+                families = m.get("details", {}).get("families", [])
+                return families if isinstance(families, list) else []
+        return []
+    except Exception as e:
+        logger.error(f"Failed to get families for model '{model_name}': {e}")
+        return []
+
+def get_model_capabilities(config, model_name: str) -> List[str]:
+    """
+    Return the capabilities of a model.
+    """
+    try:
+        client = get_ollama_client(config)
+        models = client.list().get("models", [])
+        for m in models:
+            if m.get("model") == model_name or m.get("name") == model_name:
+                capabilities = m.get("capabilities", [])
+                return capabilities if isinstance(capabilities, list) else []
+        return []
+    except Exception as e:
+        logger.error(f"Failed to get capabilities for model '{model_name}': {e}")
+        return []
+
+def version(config) -> Optional[str]:
+    """
+    Return the Ollama server version.
+    """
+    try:
+        client = get_ollama_client(config)
+        return client.version()
+    except Exception as e:
+        logger.error(f"Failed to get Ollama server version: {e}")
+        return None
+
+def get_default_model(config) -> Optional[str]:
+    """
+    Return the default model configured on the Ollama server.
+    """
+    try:
+        client = get_ollama_client(config)
+        return getattr(client, "default_model", None)
+    except Exception as e:
+        logger.error(f"Failed to get default model: {e}")
+        return None
