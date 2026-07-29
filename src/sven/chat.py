@@ -153,6 +153,7 @@ def interactive_chat() -> None:
             if USE_PTOMPT_SESSION:
                 user_prompt = session.prompt(ANSI(f"\n{BLUE}User{RESET}: "))
             else:
+                sys.stdout.flush()
                 user_prompt = ""
                 while True:
                     line = sys.stdin.readline()
