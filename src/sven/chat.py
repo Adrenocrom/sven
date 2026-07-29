@@ -1,15 +1,24 @@
 import os
+import sys
 import pprint
 import copy
 
-from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.formatted_text import ANSI
+# Define the environment variable name
+USE_PTOMPT_SESSION = os.getenv("SVEN_PLUGIN_MODE", "0") == "0"
+
+
+if USE_PTOMPT_SESSION:
+    # Only import prompt_toolkit if we actually intend to use it
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.history import FileHistory
+    from prompt_toolkit.formatted_text import ANSI
+    
+    # Initialize session (move this to your setup section if needed)
+    from sven.color import BLUE
+    from sven.color import RESET
 
 from sven.history import load_history
 
-from sven.color import BLUE
-from sven.color import RESET
 
 from sven.tools.getdatetime import getdatetime
 from sven.tools.websearch import websearch
@@ -112,6 +121,8 @@ original intent.
     print(f"\n\x1b[38;2;{r};{g};{b}m{agent.name}\x1b[0m: {new_user_prompt}")
     return new_user_prompt
 
+
+
 def interactive_chat() -> None:
     """Run an interactive LLM conversation in the terminal.
 
@@ -123,12 +134,13 @@ def interactive_chat() -> None:
     config = Config.load()
     # Ensure the data directory exists
     os.makedirs(config.data_dir, exist_ok=True)
-    _history_file = os.path.join(config.data_dir, "prompt_history")
 
-    # Setup prompt_toolkit with automatic file history handling
-    # FileHistory automatically loads existing history and appends new entries.
-    history = FileHistory(_history_file)
-    session = PromptSession(history=history)
+    if USE_PTOMPT_SESSION:
+        _history_file = os.path.join(config.data_dir, "prompt_history")
+        # Setup prompt_toolkit with automatic file history handling
+        # FileHistory automatically loads existing history and appends new entries.
+        history = FileHistory(_history_file)
+        session = PromptSession(history=history)
 
     messages = load_history(config)
     messages.append({"role": "system", "content": config.system_prompt})
@@ -137,7 +149,11 @@ def interactive_chat() -> None:
         try:
             # Use prompt_toolkit's session.prompt() instead of input()
             # It automatically handles up/down arrow keys and saves to the file
-            user_prompt = session.prompt(ANSI(f"\n{BLUE}User{RESET}: "))
+            ## user_prompt = session.prompt(ANSI(f"\n{BLUE}User{RESET}: "))
+            if USE_PTOMPT_SESSION:
+                user_prompt = session.prompt(ANSI(f"\n{BLUE}User{RESET}: "))
+            else:
+                user_prompt = sys.stdin.readline().strip()
         except EOFError:
             print("\n[Conversation ended]")
             break
