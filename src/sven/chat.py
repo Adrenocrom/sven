@@ -153,7 +153,14 @@ def interactive_chat() -> None:
             if USE_PTOMPT_SESSION:
                 user_prompt = session.prompt(ANSI(f"\n{BLUE}User{RESET}: "))
             else:
-                user_prompt = sys.stdin.readline().strip()
+                user_prompt = ""
+                while True:
+                    line = sys.stdin.readline()
+                    if "###END_OF_INPUT###" in line:
+                        break
+                    user_prompt += line
+
+                user_prompt = user_prompt.strip()
         except EOFError:
             print("\n[Conversation ended]")
             break
