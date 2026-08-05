@@ -89,7 +89,7 @@ def send(user_prompt: str, messages: list, available_functions: Dict[str, Any], 
                     input_tokens += chunk.prompt_eval_count
                     output_tokens += chunk.eval_count
                     _save_token_counts(config)
-                    print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
+                    print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens / 1_000_000:.1f}M|{output_tokens / 1_000_000:.1f}M)\x1b[0m")
                     break
         except KeyboardInterrupt:
             print("\n\x1b[1mStopping...\x1b[0m")
@@ -171,7 +171,7 @@ def summarize_conversation(
                 input_tokens += chunk.prompt_eval_count
                 output_tokens += chunk.eval_count
                 _save_token_counts(config)
-                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens}|{output_tokens})\x1b[0m")
+                print(f"\n\x1b[1min {chunk.prompt_eval_count} out {chunk.eval_count} | used ({input_tokens / 1_000_000:.1f}M|{output_tokens / 1_000_000:.1f}M)\x1b[0m")
                 break
         print("\x1b[0m")
     except Exception as e:
